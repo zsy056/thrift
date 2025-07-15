@@ -199,6 +199,12 @@
 },
 {
   "directory": "/home/runner/work/thrift/thrift/build/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_mustache_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_mustache_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_mustache_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_mustache_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build/compiler/cpp",
   "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/go_validator_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/go_validator_generator.cc",
   "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/go_validator_generator.cc",
   "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/go_validator_generator.cc.o"
