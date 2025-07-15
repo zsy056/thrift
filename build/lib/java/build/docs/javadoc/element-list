@@ -1,0 +1,12 @@
+org.apache.thrift
+org.apache.thrift.annotation
+org.apache.thrift.async
+org.apache.thrift.meta_data
+org.apache.thrift.partial
+org.apache.thrift.protocol
+org.apache.thrift.scheme
+org.apache.thrift.server
+org.apache.thrift.transport
+org.apache.thrift.transport.layered
+org.apache.thrift.transport.sasl
+org.apache.thrift.utils
