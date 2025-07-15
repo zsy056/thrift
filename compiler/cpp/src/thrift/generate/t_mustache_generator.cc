@@ -67,6 +67,11 @@ public:
   t_type_context(const t_type* type) : type_(type) {
     register_methods(this, std::map<std::string, mstch::node(t_type_context::*)()>{
       {"name", &t_type_context::name},
+      {"cpp_type", &t_type_context::cpp_type},
+      {"cpp_arg_type", &t_type_context::cpp_arg_type},
+      {"thrift_type", &t_type_context::thrift_type},
+      {"read_method", &t_type_context::read_method},
+      {"write_method", &t_type_context::write_method},
       {"is_base_type", &t_type_context::is_base_type},
       {"is_container", &t_type_context::is_container},
       {"is_list", &t_type_context::is_list},
@@ -77,7 +82,8 @@ public:
       {"is_bool", &t_type_context::is_bool},
       {"is_struct", &t_type_context::is_struct},
       {"is_enum", &t_type_context::is_enum},
-      {"is_void", &t_type_context::is_void}
+      {"is_void", &t_type_context::is_void},
+      {"is_complex_type", &t_type_context::is_complex_type}
     });
   }
 
@@ -86,6 +92,26 @@ private:
 
   mstch::node name() {
     return type_->get_name();
+  }
+
+  mstch::node cpp_type() {
+    return get_cpp_type_name(type_, false, false);
+  }
+
+  mstch::node cpp_arg_type() {
+    return get_cpp_type_name(type_, false, true);
+  }
+
+  mstch::node thrift_type() {
+    return get_thrift_protocol_type(type_);
+  }
+
+  mstch::node read_method() {
+    return get_read_method(type_);
+  }
+
+  mstch::node write_method() {
+    return get_write_method(type_);
   }
 
   mstch::node is_base_type() {
@@ -131,6 +157,165 @@ private:
   mstch::node is_void() {
     return type_->is_void();
   }
+
+  mstch::node is_complex_type() {
+    return type_->is_container() || type_->is_struct() || type_->is_xception() || 
+           (type_->is_base_type() && (type_->is_string() || type_->is_binary()));
+  }
+
+  std::string get_cpp_type_name(const t_type* ttype, bool in_typedef, bool arg) {
+    if (ttype->is_base_type()) {
+      std::string bname = get_base_type_name(((t_base_type*)ttype)->get_base());
+      
+      if (!arg) {
+        return bname;
+      }
+
+      if (ttype->is_string() || ttype->is_binary()) {
+        return "const " + bname + "&";
+      } else {
+        return "const " + bname;
+      }
+    }
+
+    if (ttype->is_container()) {
+      std::string cname;
+      if (ttype->is_map()) {
+        t_map* tmap = (t_map*)ttype;
+        cname = "std::map<" + get_cpp_type_name(tmap->get_key_type(), in_typedef, false) + ", "
+                + get_cpp_type_name(tmap->get_val_type(), in_typedef, false) + "> ";
+      } else if (ttype->is_set()) {
+        t_set* tset = (t_set*)ttype;
+        cname = "std::set<" + get_cpp_type_name(tset->get_elem_type(), in_typedef, false) + "> ";
+      } else if (ttype->is_list()) {
+        t_list* tlist = (t_list*)ttype;
+        cname = "std::vector<" + get_cpp_type_name(tlist->get_elem_type(), in_typedef, false) + "> ";
+      }
+
+      if (arg) {
+        return "const " + cname + "&";
+      } else {
+        return cname;
+      }
+    }
+
+    std::string pname = ttype->get_name();
+    if (ttype->is_enum()) {
+      pname += "::type";
+    }
+
+    if (arg) {
+      if (is_complex_type_impl(ttype)) {
+        return "const " + pname + "&";
+      } else {
+        return "const " + pname;
+      }
+    } else {
+      return pname;
+    }
+  }
+
+  bool is_complex_type_impl(const t_type* ttype) {
+    return ttype->is_container() || ttype->is_struct() || ttype->is_xception() || 
+           (ttype->is_base_type() && (ttype->is_string() || ttype->is_binary()));
+  }
+
+  std::string get_base_type_name(t_base_type::t_base tbase) {
+    switch (tbase) {
+      case t_base_type::TYPE_VOID:
+        return "void";
+      case t_base_type::TYPE_STRING:
+        return "std::string";
+      case t_base_type::TYPE_BOOL:
+        return "bool";
+      case t_base_type::TYPE_I8:
+        return "int8_t";
+      case t_base_type::TYPE_I16:
+        return "int16_t";
+      case t_base_type::TYPE_I32:
+        return "int32_t";
+      case t_base_type::TYPE_I64:
+        return "int64_t";
+      case t_base_type::TYPE_DOUBLE:
+        return "double";
+      case t_base_type::TYPE_UUID:
+        return "std::string";
+      default:
+        throw "compiler error: no C++ name for base type " + std::to_string(tbase);
+    }
+  }
+
+  std::string get_thrift_protocol_type(const t_type* ttype) {
+    if (ttype->is_base_type()) {
+      t_base_type::t_base tbase = ((t_base_type*)ttype)->get_base();
+      switch (tbase) {
+        case t_base_type::TYPE_VOID:
+          return "T_VOID";
+        case t_base_type::TYPE_STRING:
+        case t_base_type::TYPE_UUID:
+          return "T_STRING";
+        case t_base_type::TYPE_BOOL:
+          return "T_BOOL";
+        case t_base_type::TYPE_I8:
+          return "T_BYTE";
+        case t_base_type::TYPE_I16:
+          return "T_I16";
+        case t_base_type::TYPE_I32:
+          return "T_I32";
+        case t_base_type::TYPE_I64:
+          return "T_I64";
+        case t_base_type::TYPE_DOUBLE:
+          return "T_DOUBLE";
+        default:
+          return "T_STRING";
+      }
+    } else if (ttype->is_enum()) {
+      return "T_I32";
+    } else if (ttype->is_struct() || ttype->is_xception()) {
+      return "T_STRUCT";
+    } else if (ttype->is_map()) {
+      return "T_MAP";
+    } else if (ttype->is_set()) {
+      return "T_SET";
+    } else if (ttype->is_list()) {
+      return "T_LIST";
+    }
+    return "T_VOID";
+  }
+
+  std::string get_read_method(const t_type* ttype) {
+    if (ttype->is_base_type()) {
+      t_base_type::t_base tbase = ((t_base_type*)ttype)->get_base();
+      switch (tbase) {
+        case t_base_type::TYPE_VOID:
+          return "";
+        case t_base_type::TYPE_STRING:
+        case t_base_type::TYPE_UUID:
+          return "String";
+        case t_base_type::TYPE_BOOL:
+          return "Bool";
+        case t_base_type::TYPE_I8:
+          return "Byte";
+        case t_base_type::TYPE_I16:
+          return "I16";
+        case t_base_type::TYPE_I32:
+          return "I32";
+        case t_base_type::TYPE_I64:
+          return "I64";
+        case t_base_type::TYPE_DOUBLE:
+          return "Double";
+        default:
+          return "String";
+      }
+    } else if (ttype->is_enum()) {
+      return "I32";
+    }
+    return "";
+  }
+
+  std::string get_write_method(const t_type* ttype) {
+    return get_read_method(ttype); // Same as read method for basic types
+  }
 };
 
 /**
@@ -138,25 +323,53 @@ private:
  */
 class t_field_context : public mstch::object {
 public:
-  t_field_context(const t_field* field) : field_(field) {
+  t_field_context(const t_field* field, const std::string& struct_name = "") : field_(field), struct_name_(struct_name) {
     register_methods(this, std::map<std::string, mstch::node(t_field_context::*)()>{
       {"name", &t_field_context::name},
+      {"struct_name", &t_field_context::struct_name},
       {"type", &t_field_context::type},
+      {"cpp_type", &t_field_context::cpp_type},
+      {"thrift_type", &t_field_context::thrift_type},
+      {"read_method", &t_field_context::read_method},
+      {"write_method", &t_field_context::write_method},
       {"key", &t_field_context::key},
       {"optional", &t_field_context::optional},
-      {"required", &t_field_context::required}
+      {"required", &t_field_context::required},
+      {"is_complex_type", &t_field_context::is_complex_type},
+      {"has_next", &t_field_context::has_next}
     });
   }
 
 private:
   const t_field* field_;
+  std::string struct_name_;
 
   mstch::node name() {
     return field_->get_name();
   }
 
+  mstch::node struct_name() {
+    return struct_name_;
+  }
+
   mstch::node type() {
     return std::shared_ptr<mstch::object>(new t_type_context(field_->get_type()));
+  }
+
+  mstch::node cpp_type() {
+    return get_cpp_type_name(field_->get_type(), false, false);
+  }
+
+  mstch::node thrift_type() {
+    return get_thrift_protocol_type(field_->get_type());
+  }
+
+  mstch::node read_method() {
+    return get_read_method(field_->get_type());
+  }
+
+  mstch::node write_method() {
+    return get_write_method(field_->get_type());
   }
 
   mstch::node key() {
@@ -170,6 +383,171 @@ private:
   mstch::node required() {
     return field_->get_req() == t_field::T_REQUIRED;
   }
+
+  mstch::node is_complex_type() {
+    const t_type* ttype = field_->get_type();
+    return ttype->is_container() || ttype->is_struct() || ttype->is_xception() || 
+           (ttype->is_base_type() && (ttype->is_string() || ttype->is_binary()));
+  }
+
+  mstch::node has_next() {
+    // This would need to be set by the parent context
+    return false; // Will be overridden
+  }
+
+  std::string get_cpp_type_name(const t_type* ttype, bool in_typedef, bool arg) {
+    if (ttype->is_base_type()) {
+      std::string bname = get_base_type_name(((t_base_type*)ttype)->get_base());
+      
+      if (!arg) {
+        return bname;
+      }
+
+      if (ttype->is_string() || ttype->is_binary()) {
+        return "const " + bname + "&";
+      } else {
+        return "const " + bname;
+      }
+    }
+
+    if (ttype->is_container()) {
+      std::string cname;
+      if (ttype->is_map()) {
+        t_map* tmap = (t_map*)ttype;
+        cname = "std::map<" + get_cpp_type_name(tmap->get_key_type(), in_typedef, false) + ", "
+                + get_cpp_type_name(tmap->get_val_type(), in_typedef, false) + "> ";
+      } else if (ttype->is_set()) {
+        t_set* tset = (t_set*)ttype;
+        cname = "std::set<" + get_cpp_type_name(tset->get_elem_type(), in_typedef, false) + "> ";
+      } else if (ttype->is_list()) {
+        t_list* tlist = (t_list*)ttype;
+        cname = "std::vector<" + get_cpp_type_name(tlist->get_elem_type(), in_typedef, false) + "> ";
+      }
+
+      if (arg) {
+        return "const " + cname + "&";
+      } else {
+        return cname;
+      }
+    }
+
+    std::string pname = ttype->get_name();
+    if (ttype->is_enum()) {
+      pname += "::type";
+    }
+
+    if (arg) {
+      if (is_complex_type_impl(ttype)) {
+        return "const " + pname + "&";
+      } else {
+        return "const " + pname;
+      }
+    } else {
+      return pname;
+    }
+  }
+
+  bool is_complex_type_impl(const t_type* ttype) {
+    return ttype->is_container() || ttype->is_struct() || ttype->is_xception() || 
+           (ttype->is_base_type() && (ttype->is_string() || ttype->is_binary()));
+  }
+
+  std::string get_base_type_name(t_base_type::t_base tbase) {
+    switch (tbase) {
+      case t_base_type::TYPE_VOID:
+        return "void";
+      case t_base_type::TYPE_STRING:
+        return "std::string";
+      case t_base_type::TYPE_BOOL:
+        return "bool";
+      case t_base_type::TYPE_I8:
+        return "int8_t";
+      case t_base_type::TYPE_I16:
+        return "int16_t";
+      case t_base_type::TYPE_I32:
+        return "int32_t";
+      case t_base_type::TYPE_I64:
+        return "int64_t";
+      case t_base_type::TYPE_DOUBLE:
+        return "double";
+      case t_base_type::TYPE_UUID:
+        return "std::string";
+      default:
+        throw "compiler error: no C++ name for base type " + std::to_string(tbase);
+    }
+  }
+
+  std::string get_thrift_protocol_type(const t_type* ttype) {
+    if (ttype->is_base_type()) {
+      t_base_type::t_base tbase = ((t_base_type*)ttype)->get_base();
+      switch (tbase) {
+        case t_base_type::TYPE_VOID:
+          return "T_VOID";
+        case t_base_type::TYPE_STRING:
+        case t_base_type::TYPE_UUID:
+          return "T_STRING";
+        case t_base_type::TYPE_BOOL:
+          return "T_BOOL";
+        case t_base_type::TYPE_I8:
+          return "T_BYTE";
+        case t_base_type::TYPE_I16:
+          return "T_I16";
+        case t_base_type::TYPE_I32:
+          return "T_I32";
+        case t_base_type::TYPE_I64:
+          return "T_I64";
+        case t_base_type::TYPE_DOUBLE:
+          return "T_DOUBLE";
+        default:
+          return "T_STRING";
+      }
+    } else if (ttype->is_enum()) {
+      return "T_I32";
+    } else if (ttype->is_struct() || ttype->is_xception()) {
+      return "T_STRUCT";
+    } else if (ttype->is_map()) {
+      return "T_MAP";
+    } else if (ttype->is_set()) {
+      return "T_SET";
+    } else if (ttype->is_list()) {
+      return "T_LIST";
+    }
+    return "T_VOID";
+  }
+
+  std::string get_read_method(const t_type* ttype) {
+    if (ttype->is_base_type()) {
+      t_base_type::t_base tbase = ((t_base_type*)ttype)->get_base();
+      switch (tbase) {
+        case t_base_type::TYPE_VOID:
+          return "";
+        case t_base_type::TYPE_STRING:
+        case t_base_type::TYPE_UUID:
+          return "String";
+        case t_base_type::TYPE_BOOL:
+          return "Bool";
+        case t_base_type::TYPE_I8:
+          return "Byte";
+        case t_base_type::TYPE_I16:
+          return "I16";
+        case t_base_type::TYPE_I32:
+          return "I32";
+        case t_base_type::TYPE_I64:
+          return "I64";
+        case t_base_type::TYPE_DOUBLE:
+          return "Double";
+        default:
+          return "String";
+      }
+    } else if (ttype->is_enum()) {
+      return "I32";
+    }
+    return "";
+  }
+
+  std::string get_write_method(const t_type* ttype) {
+    return get_read_method(ttype); // Same as read method for basic types
+  }
 };
 
 /**
@@ -180,7 +558,11 @@ public:
   t_enum_context(const t_enum* tenum) : enum_(tenum) {
     register_methods(this, std::map<std::string, mstch::node(t_enum_context::*)()>{
       {"name", &t_enum_context::name},
-      {"values", &t_enum_context::values}
+      {"values", &t_enum_context::values},
+      {"values_count", &t_enum_context::values_count},
+      {"values_list", &t_enum_context::values_list},
+      {"values_array", &t_enum_context::values_array},
+      {"names_array", &t_enum_context::names_array}
     });
   }
 
@@ -199,6 +581,52 @@ private:
     }
     return result;
   }
+
+  mstch::node values_count() {
+    return static_cast<int>(enum_->get_constants().size());
+  }
+
+  mstch::node values_list() {
+    std::string result;
+    const vector<t_enum_value*>& values = enum_->get_constants();
+    for (size_t i = 0; i < values.size(); ++i) {
+      result += "    " + values[i]->get_name() + " = " + std::to_string(values[i]->get_value());
+      if (i < values.size() - 1) {
+        result += ",\n";
+      } else {
+        result += "\n";
+      }
+    }
+    return result;
+  }
+
+  mstch::node values_array() {
+    std::string result;
+    const vector<t_enum_value*>& values = enum_->get_constants();
+    for (size_t i = 0; i < values.size(); ++i) {
+      result += "  " + enum_->get_name() + "::" + values[i]->get_name();
+      if (i < values.size() - 1) {
+        result += ",\n";
+      } else {
+        result += "\n";
+      }
+    }
+    return result;
+  }
+
+  mstch::node names_array() {
+    std::string result;
+    const vector<t_enum_value*>& values = enum_->get_constants();
+    for (size_t i = 0; i < values.size(); ++i) {
+      result += "  \"" + values[i]->get_name() + "\"";
+      if (i < values.size() - 1) {
+        result += ",\n";
+      } else {
+        result += "\n";
+      }
+    }
+    return result;
+  }
 };
 
 /**
@@ -210,6 +638,10 @@ public:
     register_methods(this, std::map<std::string, mstch::node(t_struct_context::*)()>{
       {"name", &t_struct_context::name},
       {"fields", &t_struct_context::fields},
+      {"fields_list", &t_struct_context::fields_list},
+      {"init_list", &t_struct_context::init_list},
+      {"equality_checks", &t_struct_context::equality_checks},
+      {"print_fields", &t_struct_context::print_fields},
       {"is_exception", &t_struct_context::is_exception},
       {"is_union", &t_struct_context::is_union}
     });
@@ -225,8 +657,77 @@ private:
   mstch::node fields() {
     mstch::array result;
     const vector<t_field*>& fields = struct_->get_members();
-    for (const auto& field : fields) {
-      result.push_back(std::shared_ptr<mstch::object>(new t_field_context(field)));
+    for (size_t i = 0; i < fields.size(); ++i) {
+      auto field_ctx = std::shared_ptr<t_field_context>(new t_field_context(fields[i], struct_->get_name()));
+      result.push_back(field_ctx);
+    }
+    return result;
+  }
+
+  mstch::node fields_list() {
+    // Return comma-separated list of field initializers
+    std::string result;
+    const vector<t_field*>& fields = struct_->get_members();
+    for (size_t i = 0; i < fields.size(); ++i) {
+      result += fields[i]->get_name() + "(false)";
+      if (i < fields.size() - 1) {
+        result += ", ";
+      }
+    }
+    return result;
+  }
+
+  mstch::node init_list() {
+    // Return member initializer list for default constructor
+    std::string result;
+    const vector<t_field*>& fields = struct_->get_members();
+    for (size_t i = 0; i < fields.size(); ++i) {
+      result += "     " + fields[i]->get_name() + "(";
+      const t_type* type = fields[i]->get_type();
+      if (type->is_base_type()) {
+        t_base_type::t_base tbase = ((t_base_type*)type)->get_base();
+        if (tbase == t_base_type::TYPE_STRING || tbase == t_base_type::TYPE_BOOL) {
+          // String and bool get default constructed
+          result += ")";
+        } else {
+          // Numeric types get 0
+          result += "0)";
+        }
+      } else {
+        // Other types get default constructed
+        result += ")";
+      }
+      if (i < fields.size() - 1) {
+        result += ",\n";
+      } else {
+        result += " {\n";
+      }
+    }
+    return result;
+  }
+
+  mstch::node equality_checks() {
+    // Return equality comparison for operator==
+    std::string result;
+    const vector<t_field*>& fields = struct_->get_members();
+    for (size_t i = 0; i < fields.size(); ++i) {
+      result += "  if (!(" + fields[i]->get_name() + " == rhs." + fields[i]->get_name() + "))\n";
+      result += "    return false;\n";
+    }
+    return result;
+  }
+
+  mstch::node print_fields() {
+    // Return comma-separated list for printTo method
+    std::string result;
+    const vector<t_field*>& fields = struct_->get_members();
+    for (size_t i = 0; i < fields.size(); ++i) {
+      result += "  out << \"" + fields[i]->get_name() + "=\" << to_string(" + fields[i]->get_name() + ");";
+      if (i < fields.size() - 1) {
+        result += "\n  out << \", \";\n";
+      } else {
+        result += "\n";
+      }
     }
     return result;
   }
@@ -389,6 +890,7 @@ public:
   t_program_context(const t_program* program) : program_(program) {
     register_methods(this, std::map<std::string, mstch::node(t_program_context::*)()>{
       {"name", &t_program_context::name},
+      {"program_name", &t_program_context::program_name},
       {"structs", &t_program_context::structs},
       {"enums", &t_program_context::enums},
       {"services", &t_program_context::services},
@@ -403,6 +905,10 @@ private:
   const t_program* program_;
 
   mstch::node name() {
+    return program_->get_name();
+  }
+
+  mstch::node program_name() {
     return program_->get_name();
   }
 
@@ -521,7 +1027,14 @@ void t_mustache_generator::init_generator() {
 }
 
 void t_mustache_generator::close_generator() {
-  // Nothing to do
+  // Generate the main types header and implementation files like cpp generator
+  auto context = std::shared_ptr<mstch::object>(new t_program_context(get_program()));
+  
+  // Generate types header file
+  write_template_output("types.h.mustache", get_program()->get_name() + "_types.h", context);
+  
+  // Generate types implementation file
+  write_template_output("types.cpp.mustache", get_program()->get_name() + "_types.cpp", context);
 }
 
 std::string t_mustache_generator::display_name() const {
@@ -569,18 +1082,18 @@ void t_mustache_generator::generate_typedef(t_typedef* ttypedef) {
 }
 
 void t_mustache_generator::generate_enum(t_enum* tenum) {
-  auto context = std::shared_ptr<mstch::object>(new t_enum_context(tenum));
-  write_template_output("enum.mustache", tenum->get_name() + ".h", context);
+  (void)tenum;
+  // Enums will be handled in the main types file
 }
 
 void t_mustache_generator::generate_struct(t_struct* tstruct) {
-  auto context = std::shared_ptr<mstch::object>(new t_struct_context(tstruct));
-  write_template_output("struct.mustache", tstruct->get_name() + ".h", context);
+  (void)tstruct;
+  // Structs will be handled in the main types file
 }
 
 void t_mustache_generator::generate_service(t_service* tservice) {
-  auto context = std::shared_ptr<mstch::object>(new t_service_context(tservice));
-  write_template_output("service.mustache", tservice->get_name() + ".h", context);
+  (void)tservice;
+  // Services will be handled separately - for now skip
 }
 
 THRIFT_REGISTER_GENERATOR(
