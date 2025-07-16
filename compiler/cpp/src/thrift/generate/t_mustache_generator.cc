@@ -323,7 +323,8 @@ private:
  */
 class t_field_context : public mstch::object {
 public:
-  t_field_context(const t_field* field, const std::string& struct_name = "") : field_(field), struct_name_(struct_name) {
+  t_field_context(const t_field* field, const std::string& struct_name = "") 
+    : field_(field), struct_name_(struct_name), synthetic_name_(""), synthetic_type_(nullptr), synthetic_key_(0), is_last_(false) {
     register_methods(this, std::map<std::string, mstch::node(t_field_context::*)()>{
       {"name", &t_field_context::name},
       {"struct_name", &t_field_context::struct_name},
@@ -336,15 +337,51 @@ public:
       {"optional", &t_field_context::optional},
       {"required", &t_field_context::required},
       {"is_complex_type", &t_field_context::is_complex_type},
-      {"has_next", &t_field_context::has_next}
+      {"has_next", &t_field_context::has_next},
+      {"last", &t_field_context::last}
+    });
+  }
+
+  // Constructor for synthetic fields (like return value "success" field)
+  t_field_context(const t_field* field, const std::string& struct_name, const std::string& synthetic_name, 
+                  const t_type* synthetic_type, int32_t synthetic_key)
+    : field_(field), struct_name_(struct_name), synthetic_name_(synthetic_name), 
+      synthetic_type_(synthetic_type), synthetic_key_(synthetic_key), is_last_(false) {
+    register_methods(this, std::map<std::string, mstch::node(t_field_context::*)()>{
+      {"name", &t_field_context::name},
+      {"struct_name", &t_field_context::struct_name},
+      {"type", &t_field_context::type},
+      {"cpp_type", &t_field_context::cpp_type},
+      {"thrift_type", &t_field_context::thrift_type},
+      {"read_method", &t_field_context::read_method},
+      {"write_method", &t_field_context::write_method},
+      {"key", &t_field_context::key},
+      {"optional", &t_field_context::optional},
+      {"required", &t_field_context::required},
+      {"is_complex_type", &t_field_context::is_complex_type},
+      {"has_next", &t_field_context::has_next},
+      {"last", &t_field_context::last}
     });
   }
 
 private:
   const t_field* field_;
-  std::string struct_name_;
+  const std::string struct_name_;
+  // For synthetic fields
+  const std::string synthetic_name_;
+  const t_type* synthetic_type_;
+  int32_t synthetic_key_;
+  bool is_last_;
+
+public:
+  void set_last(bool last) { is_last_ = last; }
+
+private:
 
   mstch::node name() {
+    if (!synthetic_name_.empty()) {
+      return synthetic_name_;
+    }
     return field_->get_name();
   }
 
@@ -353,39 +390,53 @@ private:
   }
 
   mstch::node type() {
-    return std::shared_ptr<mstch::object>(new t_type_context(field_->get_type()));
+    const t_type* type = synthetic_type_ ? synthetic_type_ : field_->get_type();
+    return std::shared_ptr<mstch::object>(new t_type_context(type));
   }
 
   mstch::node cpp_type() {
-    return get_cpp_type_name(field_->get_type(), false, false);
+    const t_type* type = synthetic_type_ ? synthetic_type_ : field_->get_type();
+    return get_cpp_type_name(type, false, false);
   }
 
   mstch::node thrift_type() {
-    return get_thrift_protocol_type(field_->get_type());
+    const t_type* type = synthetic_type_ ? synthetic_type_ : field_->get_type();
+    return get_thrift_protocol_type(type);
   }
 
   mstch::node read_method() {
-    return get_read_method(field_->get_type());
+    const t_type* type = synthetic_type_ ? synthetic_type_ : field_->get_type();
+    return get_read_method(type);
   }
 
   mstch::node write_method() {
-    return get_write_method(field_->get_type());
+    const t_type* type = synthetic_type_ ? synthetic_type_ : field_->get_type();
+    return get_write_method(type);
   }
 
   mstch::node key() {
+    if (synthetic_key_ != 0) {
+      return synthetic_key_;
+    }
     return static_cast<int>(field_->get_key());
   }
 
   mstch::node optional() {
+    if (synthetic_type_) {
+      return false; // synthetic fields like "success" are not optional
+    }
     return field_->get_req() == t_field::T_OPTIONAL;
   }
 
   mstch::node required() {
+    if (synthetic_type_) {
+      return false; // synthetic fields are neither required nor optional
+    }
     return field_->get_req() == t_field::T_REQUIRED;
   }
 
   mstch::node is_complex_type() {
-    const t_type* ttype = field_->get_type();
+    const t_type* ttype = synthetic_type_ ? synthetic_type_ : field_->get_type();
     return ttype->is_container() || ttype->is_struct() || ttype->is_xception() || 
            (ttype->is_base_type() && (ttype->is_string() || ttype->is_binary()));
   }
@@ -393,6 +444,10 @@ private:
   mstch::node has_next() {
     // This would need to be set by the parent context
     return false; // Will be overridden
+  }
+
+  mstch::node last() {
+    return is_last_;
   }
 
   std::string get_cpp_type_name(const t_type* ttype, bool in_typedef, bool arg) {
@@ -746,7 +801,8 @@ private:
  */
 class t_function_context : public mstch::object {
 public:
-  t_function_context(const t_function* function) : function_(function) {
+  t_function_context(const t_function* function, const std::string& service_name = "") 
+    : function_(function), service_name_(service_name) {
     register_methods(this, std::map<std::string, mstch::node(t_function_context::*)()>{
       {"name", &t_function_context::name},
       {"return_type", &t_function_context::return_type},
@@ -760,12 +816,16 @@ public:
       {"arguments_signature", &t_function_context::arguments_signature},
       {"cpp_arguments_signature", &t_function_context::cpp_arguments_signature},
       {"arguments_list", &t_function_context::arguments_list},
-      {"has_exceptions", &t_function_context::has_exceptions}
+      {"has_exceptions", &t_function_context::has_exceptions},
+      {"args_struct_name", &t_function_context::args_struct_name},
+      {"result_struct_name", &t_function_context::result_struct_name},
+      {"pargs_struct_name", &t_function_context::pargs_struct_name}
     });
   }
 
 private:
   const t_function* function_;
+  const std::string service_name_;
 
   bool is_complex_return_impl() {
     const t_type* ret_type = function_->get_returntype();
@@ -874,6 +934,130 @@ private:
   mstch::node has_exceptions() {
     return !function_->get_xceptions()->get_members().empty();
   }
+
+  mstch::node args_struct_name() {
+    return service_name_ + "_" + function_->get_name() + "_args";
+  }
+
+  mstch::node result_struct_name() {
+    return service_name_ + "_" + function_->get_name() + "_result";
+  }
+
+  mstch::node pargs_struct_name() {
+    return service_name_ + "_" + function_->get_name() + "_pargs";
+  }
+};
+
+/**
+ * Context class for argument/result helper structs
+ */
+class t_function_helper_context : public mstch::object {
+public:
+  t_function_helper_context(const t_function* function, const std::string& service_name, const std::string& helper_type)
+    : function_(function), service_name_(service_name), helper_type_(helper_type) {
+    register_methods(this, std::map<std::string, mstch::node(t_function_helper_context::*)()>{
+      {"name", &t_function_helper_context::name},
+      {"fields", &t_function_helper_context::fields},
+      {"has_fields", &t_function_helper_context::has_fields},
+      {"equality_comparison", &t_function_helper_context::equality_comparison}
+    });
+  }
+
+private:
+  const t_function* function_;
+  const std::string service_name_;
+  const std::string helper_type_;
+
+  mstch::node name() {
+    return service_name_ + "_" + function_->get_name() + "_" + helper_type_;
+  }
+
+  mstch::node fields() {
+    mstch::array result;
+    
+    if (helper_type_ == "args") {
+      // For args struct, include function arguments
+      const t_struct* args = function_->get_arglist();
+      const vector<t_field*>& fields = args->get_members();
+      for (size_t i = 0; i < fields.size(); ++i) {
+        std::string struct_name = service_name_ + "_" + function_->get_name() + "_" + helper_type_;
+        auto field_ctx = std::shared_ptr<t_field_context>(new t_field_context(fields[i], struct_name));
+        // Set last flag for template usage
+        field_ctx->set_last(i == fields.size() - 1);
+        result.push_back(field_ctx);
+      }
+    } else if (helper_type_ == "result") {
+      // For result struct, include return value and exceptions
+      std::vector<std::shared_ptr<t_field_context>> field_contexts;
+      
+      if (!function_->get_returntype()->is_void()) {
+        // Create synthetic field for return value - we need to be careful with memory management
+        std::string struct_name = service_name_ + "_" + function_->get_name() + "_" + helper_type_;
+        field_contexts.push_back(std::shared_ptr<t_field_context>(new t_field_context(nullptr, struct_name, "success", function_->get_returntype(), 0)));
+      }
+      
+      // Add exception fields
+      const t_struct* exceptions = function_->get_xceptions();
+      const vector<t_field*>& exc_fields = exceptions->get_members();
+      for (const auto& field : exc_fields) {
+        std::string struct_name = service_name_ + "_" + function_->get_name() + "_" + helper_type_;
+        field_contexts.push_back(std::shared_ptr<t_field_context>(new t_field_context(field, struct_name)));
+      }
+      
+      // Set last flag
+      for (size_t i = 0; i < field_contexts.size(); ++i) {
+        field_contexts[i]->set_last(i == field_contexts.size() - 1);
+        result.push_back(field_contexts[i]);
+      }
+    }
+    
+    return result;
+  }
+
+  mstch::node equality_comparison() {
+    std::string result;
+    
+    if (helper_type_ == "args") {
+      const t_struct* args = function_->get_arglist();
+      const vector<t_field*>& fields = args->get_members();
+      for (size_t i = 0; i < fields.size(); ++i) {
+        result += "this->" + fields[i]->get_name() + " == rhs." + fields[i]->get_name();
+        if (i < fields.size() - 1) {
+          result += " &&\n          ";
+        }
+      }
+    } else if (helper_type_ == "result") {
+      std::vector<std::string> field_names;
+      
+      if (!function_->get_returntype()->is_void()) {
+        field_names.push_back("success");
+      }
+      
+      const t_struct* exceptions = function_->get_xceptions();
+      const vector<t_field*>& exc_fields = exceptions->get_members();
+      for (const auto& field : exc_fields) {
+        field_names.push_back(field->get_name());
+      }
+      
+      for (size_t i = 0; i < field_names.size(); ++i) {
+        result += "this->" + field_names[i] + " == rhs." + field_names[i];
+        if (i < field_names.size() - 1) {
+          result += " &&\n          ";
+        }
+      }
+    }
+    
+    return result;
+  }
+
+  mstch::node has_fields() {
+    if (helper_type_ == "args") {
+      return !function_->get_arglist()->get_members().empty();
+    } else if (helper_type_ == "result") {
+      return !function_->get_returntype()->is_void() || !function_->get_xceptions()->get_members().empty();
+    }
+    return false;
+  }
 };
 
 /**
@@ -888,7 +1072,8 @@ public:
       {"extends", &t_service_context::extends},
       {"has_extends", &t_service_context::has_extends},
       {"extends_name", &t_service_context::extends_name},
-      {"has_functions", &t_service_context::has_functions}
+      {"has_functions", &t_service_context::has_functions},
+      {"function_helpers", &t_service_context::function_helpers}
     });
   }
 
@@ -903,7 +1088,7 @@ private:
     mstch::array result;
     const vector<t_function*>& functions = service_->get_functions();
     for (const auto& func : functions) {
-      result.push_back(std::shared_ptr<mstch::object>(new t_function_context(func)));
+      result.push_back(std::shared_ptr<mstch::object>(new t_function_context(func, service_->get_name())));
     }
     return result;
   }
@@ -930,6 +1115,27 @@ private:
 
   mstch::node has_functions() {
     return !service_->get_functions().empty();
+  }
+
+  mstch::node function_helpers() {
+    mstch::array result;
+    const vector<t_function*>& functions = service_->get_functions();
+    
+    for (const auto& func : functions) {
+      // Add args struct
+      result.push_back(std::shared_ptr<mstch::object>(
+        new t_function_helper_context(func, service_->get_name(), "args")));
+      
+      // Add result struct
+      result.push_back(std::shared_ptr<mstch::object>(
+        new t_function_helper_context(func, service_->get_name(), "result")));
+      
+      // Add pargs struct
+      result.push_back(std::shared_ptr<mstch::object>(
+        new t_function_helper_context(func, service_->get_name(), "pargs")));
+    }
+    
+    return result;
   }
 };
 

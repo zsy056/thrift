@@ -21,6 +21,53 @@
   #pragma warning (disable : 4250 ) //inheriting methods via dominance 
 #endif
 
+// Forward declarations for argument/result helper structs
+{{#service.function_helpers}}
+{{#has_fields}}
+class {{name}};
+{{/has_fields}}
+{{/service.function_helpers}}
+
+// Argument and result helper structs
+{{#service.function_helpers}}
+{{#has_fields}}
+class {{name}} {
+ public:
+
+  {{name}}() {
+  }
+
+  virtual ~{{name}}() noexcept;
+
+{{#fields}}
+  {{cpp_type}} {{name}};
+{{/fields}}
+
+{{#fields}}
+  void __set_{{name}}(const {{cpp_type}}& val);
+{{/fields}}
+
+  bool operator == (const {{name}} & rhs) const
+  {
+    if (!({{equality_comparison}}))
+      return false;
+    return true;
+  }
+  bool operator != (const {{name}} &rhs) const {
+    return !(*this == rhs);
+  }
+
+  bool operator < (const {{name}} & ) const;
+
+  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
+
+  virtual void printTo(std::ostream& out) const;
+};
+
+{{/has_fields}}
+{{/service.function_helpers}}
+
 class {{service.name}}If{{#service.has_extends}} : virtual public {{service.extends_name}}If{{/service.has_extends}} {
  public:
   virtual ~{{service.name}}If() {}
