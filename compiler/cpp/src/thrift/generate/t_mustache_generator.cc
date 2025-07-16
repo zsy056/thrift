@@ -35,6 +35,161 @@ using std::ostream;
 using std::string;
 using std::vector;
 
+// Helper functions for C++ type generation
+static std::string get_base_type_name(t_base_type::t_base tbase) {
+  switch (tbase) {
+    case t_base_type::TYPE_VOID:
+      return "void";
+    case t_base_type::TYPE_STRING:
+      return "std::string";
+    case t_base_type::TYPE_BOOL:
+      return "bool";
+    case t_base_type::TYPE_I8:
+      return "int8_t";
+    case t_base_type::TYPE_I16:
+      return "int16_t";
+    case t_base_type::TYPE_I32:
+      return "int32_t";
+    case t_base_type::TYPE_I64:
+      return "int64_t";
+    case t_base_type::TYPE_DOUBLE:
+      return "double";
+    case t_base_type::TYPE_UUID:
+      return "std::string";
+    default:
+      throw "compiler error: no C++ name for base type " + std::to_string(tbase);
+  }
+}
+
+static bool is_complex_type_impl(const t_type* ttype) {
+  return ttype->is_container() || ttype->is_struct() || ttype->is_xception() || 
+         (ttype->is_base_type() && (ttype->is_string() || ttype->is_binary()));
+}
+
+static std::string get_cpp_type_name(const t_type* ttype, bool in_typedef, bool arg) {
+  if (ttype->is_base_type()) {
+    std::string bname = get_base_type_name(((t_base_type*)ttype)->get_base());
+    
+    if (!arg) {
+      return bname;
+    }
+
+    if (ttype->is_string() || ttype->is_binary()) {
+      return "const " + bname + "&";
+    } else {
+      return "const " + bname;
+    }
+  }
+
+  if (ttype->is_container()) {
+    std::string cname;
+    if (ttype->is_map()) {
+      t_map* tmap = (t_map*)ttype;
+      cname = "std::map<" + get_cpp_type_name(tmap->get_key_type(), in_typedef, false) + ", "
+              + get_cpp_type_name(tmap->get_val_type(), in_typedef, false) + "> ";
+    } else if (ttype->is_set()) {
+      t_set* tset = (t_set*)ttype;
+      cname = "std::set<" + get_cpp_type_name(tset->get_elem_type(), in_typedef, false) + "> ";
+    } else if (ttype->is_list()) {
+      t_list* tlist = (t_list*)ttype;
+      cname = "std::vector<" + get_cpp_type_name(tlist->get_elem_type(), in_typedef, false) + "> ";
+    }
+
+    if (arg) {
+      return "const " + cname + "&";
+    } else {
+      return cname;
+    }
+  }
+
+  std::string pname = ttype->get_name();
+  if (ttype->is_enum()) {
+    pname += "::type";
+  }
+
+  if (arg) {
+    if (is_complex_type_impl(ttype)) {
+      return "const " + pname + "&";
+    } else {
+      return "const " + pname;
+    }
+  } else {
+    return pname;
+  }
+}
+
+static std::string get_thrift_protocol_type(const t_type* ttype) {
+  if (ttype->is_base_type()) {
+    t_base_type::t_base tbase = ((t_base_type*)ttype)->get_base();
+    switch (tbase) {
+      case t_base_type::TYPE_VOID:
+        return "T_VOID";
+      case t_base_type::TYPE_STRING:
+      case t_base_type::TYPE_UUID:
+        return "T_STRING";
+      case t_base_type::TYPE_BOOL:
+        return "T_BOOL";
+      case t_base_type::TYPE_I8:
+        return "T_BYTE";
+      case t_base_type::TYPE_I16:
+        return "T_I16";
+      case t_base_type::TYPE_I32:
+        return "T_I32";
+      case t_base_type::TYPE_I64:
+        return "T_I64";
+      case t_base_type::TYPE_DOUBLE:
+        return "T_DOUBLE";
+      default:
+        return "T_STRING";
+    }
+  } else if (ttype->is_enum()) {
+    return "T_I32";
+  } else if (ttype->is_struct() || ttype->is_xception()) {
+    return "T_STRUCT";
+  } else if (ttype->is_map()) {
+    return "T_MAP";
+  } else if (ttype->is_set()) {
+    return "T_SET";
+  } else if (ttype->is_list()) {
+    return "T_LIST";
+  }
+  return "T_VOID";
+}
+
+static std::string get_read_method(const t_type* ttype) {
+  if (ttype->is_base_type()) {
+    t_base_type::t_base tbase = ((t_base_type*)ttype)->get_base();
+    switch (tbase) {
+      case t_base_type::TYPE_VOID:
+        return "";
+      case t_base_type::TYPE_STRING:
+      case t_base_type::TYPE_UUID:
+        return "String";
+      case t_base_type::TYPE_BOOL:
+        return "Bool";
+      case t_base_type::TYPE_I8:
+        return "Byte";
+      case t_base_type::TYPE_I16:
+        return "I16";
+      case t_base_type::TYPE_I32:
+        return "I32";
+      case t_base_type::TYPE_I64:
+        return "I64";
+      case t_base_type::TYPE_DOUBLE:
+        return "Double";
+      default:
+        return "String";
+    }
+  } else if (ttype->is_enum()) {
+    return "I32";
+  }
+  return "";
+}
+
+static std::string get_write_method(const t_type* ttype) {
+  return get_read_method(ttype); // Same as read method for basic types
+}
+
 /**
  * Context class for enum values
  */
@@ -159,162 +314,7 @@ private:
   }
 
   mstch::node is_complex_type() {
-    return type_->is_container() || type_->is_struct() || type_->is_xception() || 
-           (type_->is_base_type() && (type_->is_string() || type_->is_binary()));
-  }
-
-  std::string get_cpp_type_name(const t_type* ttype, bool in_typedef, bool arg) {
-    if (ttype->is_base_type()) {
-      std::string bname = get_base_type_name(((t_base_type*)ttype)->get_base());
-      
-      if (!arg) {
-        return bname;
-      }
-
-      if (ttype->is_string() || ttype->is_binary()) {
-        return "const " + bname + "&";
-      } else {
-        return "const " + bname;
-      }
-    }
-
-    if (ttype->is_container()) {
-      std::string cname;
-      if (ttype->is_map()) {
-        t_map* tmap = (t_map*)ttype;
-        cname = "std::map<" + get_cpp_type_name(tmap->get_key_type(), in_typedef, false) + ", "
-                + get_cpp_type_name(tmap->get_val_type(), in_typedef, false) + "> ";
-      } else if (ttype->is_set()) {
-        t_set* tset = (t_set*)ttype;
-        cname = "std::set<" + get_cpp_type_name(tset->get_elem_type(), in_typedef, false) + "> ";
-      } else if (ttype->is_list()) {
-        t_list* tlist = (t_list*)ttype;
-        cname = "std::vector<" + get_cpp_type_name(tlist->get_elem_type(), in_typedef, false) + "> ";
-      }
-
-      if (arg) {
-        return "const " + cname + "&";
-      } else {
-        return cname;
-      }
-    }
-
-    std::string pname = ttype->get_name();
-    if (ttype->is_enum()) {
-      pname += "::type";
-    }
-
-    if (arg) {
-      if (is_complex_type_impl(ttype)) {
-        return "const " + pname + "&";
-      } else {
-        return "const " + pname;
-      }
-    } else {
-      return pname;
-    }
-  }
-
-  bool is_complex_type_impl(const t_type* ttype) {
-    return ttype->is_container() || ttype->is_struct() || ttype->is_xception() || 
-           (ttype->is_base_type() && (ttype->is_string() || ttype->is_binary()));
-  }
-
-  std::string get_base_type_name(t_base_type::t_base tbase) {
-    switch (tbase) {
-      case t_base_type::TYPE_VOID:
-        return "void";
-      case t_base_type::TYPE_STRING:
-        return "std::string";
-      case t_base_type::TYPE_BOOL:
-        return "bool";
-      case t_base_type::TYPE_I8:
-        return "int8_t";
-      case t_base_type::TYPE_I16:
-        return "int16_t";
-      case t_base_type::TYPE_I32:
-        return "int32_t";
-      case t_base_type::TYPE_I64:
-        return "int64_t";
-      case t_base_type::TYPE_DOUBLE:
-        return "double";
-      case t_base_type::TYPE_UUID:
-        return "std::string";
-      default:
-        throw "compiler error: no C++ name for base type " + std::to_string(tbase);
-    }
-  }
-
-  std::string get_thrift_protocol_type(const t_type* ttype) {
-    if (ttype->is_base_type()) {
-      t_base_type::t_base tbase = ((t_base_type*)ttype)->get_base();
-      switch (tbase) {
-        case t_base_type::TYPE_VOID:
-          return "T_VOID";
-        case t_base_type::TYPE_STRING:
-        case t_base_type::TYPE_UUID:
-          return "T_STRING";
-        case t_base_type::TYPE_BOOL:
-          return "T_BOOL";
-        case t_base_type::TYPE_I8:
-          return "T_BYTE";
-        case t_base_type::TYPE_I16:
-          return "T_I16";
-        case t_base_type::TYPE_I32:
-          return "T_I32";
-        case t_base_type::TYPE_I64:
-          return "T_I64";
-        case t_base_type::TYPE_DOUBLE:
-          return "T_DOUBLE";
-        default:
-          return "T_STRING";
-      }
-    } else if (ttype->is_enum()) {
-      return "T_I32";
-    } else if (ttype->is_struct() || ttype->is_xception()) {
-      return "T_STRUCT";
-    } else if (ttype->is_map()) {
-      return "T_MAP";
-    } else if (ttype->is_set()) {
-      return "T_SET";
-    } else if (ttype->is_list()) {
-      return "T_LIST";
-    }
-    return "T_VOID";
-  }
-
-  std::string get_read_method(const t_type* ttype) {
-    if (ttype->is_base_type()) {
-      t_base_type::t_base tbase = ((t_base_type*)ttype)->get_base();
-      switch (tbase) {
-        case t_base_type::TYPE_VOID:
-          return "";
-        case t_base_type::TYPE_STRING:
-        case t_base_type::TYPE_UUID:
-          return "String";
-        case t_base_type::TYPE_BOOL:
-          return "Bool";
-        case t_base_type::TYPE_I8:
-          return "Byte";
-        case t_base_type::TYPE_I16:
-          return "I16";
-        case t_base_type::TYPE_I32:
-          return "I32";
-        case t_base_type::TYPE_I64:
-          return "I64";
-        case t_base_type::TYPE_DOUBLE:
-          return "Double";
-        default:
-          return "String";
-      }
-    } else if (ttype->is_enum()) {
-      return "I32";
-    }
-    return "";
-  }
-
-  std::string get_write_method(const t_type* ttype) {
-    return get_read_method(ttype); // Same as read method for basic types
+    return is_complex_type_impl(type_);
   }
 };
 
@@ -752,7 +752,12 @@ public:
       {"return_type", &t_function_context::return_type},
       {"arguments", &t_function_context::arguments},
       {"exceptions", &t_function_context::exceptions},
-      {"is_oneway", &t_function_context::is_oneway}
+      {"is_oneway", &t_function_context::is_oneway},
+      {"return_cpp_type", &t_function_context::return_cpp_type},
+      {"returns_void", &t_function_context::returns_void},
+      {"arguments_signature", &t_function_context::arguments_signature},
+      {"arguments_list", &t_function_context::arguments_list},
+      {"has_exceptions", &t_function_context::has_exceptions}
     });
   }
 
@@ -788,6 +793,43 @@ private:
   mstch::node is_oneway() {
     return function_->is_oneway();
   }
+
+  mstch::node return_cpp_type() {
+    const t_type* ret_type = function_->get_returntype();
+    return get_cpp_type_name(ret_type, false, false);
+  }
+
+  mstch::node returns_void() {
+    return function_->get_returntype()->is_void();
+  }
+
+  mstch::node arguments_signature() {
+    std::string result;
+    const vector<t_field*>& args = function_->get_arglist()->get_members();
+    for (size_t i = 0; i < args.size(); ++i) {
+      result += get_cpp_type_name(args[i]->get_type(), false, true) + " " + args[i]->get_name();
+      if (i < args.size() - 1) {
+        result += ", ";
+      }
+    }
+    return result;
+  }
+
+  mstch::node arguments_list() {
+    std::string result;
+    const vector<t_field*>& args = function_->get_arglist()->get_members();
+    for (size_t i = 0; i < args.size(); ++i) {
+      result += args[i]->get_name();
+      if (i < args.size() - 1) {
+        result += ", ";
+      }
+    }
+    return result;
+  }
+
+  mstch::node has_exceptions() {
+    return !function_->get_xceptions()->get_members().empty();
+  }
 };
 
 /**
@@ -799,7 +841,10 @@ public:
     register_methods(this, std::map<std::string, mstch::node(t_service_context::*)()>{
       {"name", &t_service_context::name},
       {"functions", &t_service_context::functions},
-      {"extends", &t_service_context::extends}
+      {"extends", &t_service_context::extends},
+      {"has_extends", &t_service_context::has_extends},
+      {"extends_name", &t_service_context::extends_name},
+      {"has_functions", &t_service_context::has_functions}
     });
   }
 
@@ -825,6 +870,22 @@ private:
       return std::shared_ptr<mstch::object>(new t_service_context(extends));
     }
     return mstch::node();
+  }
+
+  mstch::node has_extends() {
+    return service_->get_extends() != nullptr;
+  }
+
+  mstch::node extends_name() {
+    const t_service* extends = service_->get_extends();
+    if (extends) {
+      return extends->get_name();
+    }
+    return "";
+  }
+
+  mstch::node has_functions() {
+    return !service_->get_functions().empty();
   }
 };
 
@@ -1019,6 +1080,7 @@ private:
   void write_template_output(const std::string& template_name, 
                            const std::string& output_file,
                            std::shared_ptr<mstch::object> context);
+  bool file_exists(const std::string& filename);
 };
 
 void t_mustache_generator::init_generator() {
@@ -1092,8 +1154,103 @@ void t_mustache_generator::generate_struct(t_struct* tstruct) {
 }
 
 void t_mustache_generator::generate_service(t_service* tservice) {
-  (void)tservice;
-  // Services will be handled separately - for now skip
+  if (template_dir_.empty()) {
+    return;
+  }
+
+  string service_name = tservice->get_name();
+  
+  // Create service header file using template
+  string header_template_path = template_dir_ + "/service.h.mustache";
+  string header_output_path = get_out_dir() + service_name + ".h";
+  
+  if (file_exists(header_template_path)) {
+    std::ifstream template_file(header_template_path);
+    if (template_file.is_open()) {
+      std::string template_content((std::istreambuf_iterator<char>(template_file)),
+                                   std::istreambuf_iterator<char>());
+      template_file.close();
+
+      // Create context for the service
+      t_service_context service_context(tservice);
+      mstch::map context_map;
+      context_map["service"] = std::shared_ptr<mstch::object>(&service_context, [](mstch::object*) {});
+      context_map["program"] = std::shared_ptr<mstch::object>(new t_program_context(program_));
+      
+      // Render template
+      std::string rendered = mstch::render(template_content, context_map);
+      
+      // Write to output file
+      std::ofstream output_file(header_output_path);
+      if (output_file.is_open()) {
+        output_file << rendered;
+        output_file.close();
+      }
+    }
+  }
+
+  // Create service implementation file using template
+  string impl_template_path = template_dir_ + "/service.cpp.mustache";
+  string impl_output_path = get_out_dir() + service_name + ".cpp";
+  
+  if (file_exists(impl_template_path)) {
+    std::ifstream template_file(impl_template_path);
+    if (template_file.is_open()) {
+      std::string template_content((std::istreambuf_iterator<char>(template_file)),
+                                   std::istreambuf_iterator<char>());
+      template_file.close();
+
+      // Create context for the service
+      t_service_context service_context(tservice);
+      mstch::map context_map;
+      context_map["service"] = std::shared_ptr<mstch::object>(&service_context, [](mstch::object*) {});
+      context_map["program"] = std::shared_ptr<mstch::object>(new t_program_context(program_));
+      
+      // Render template
+      std::string rendered = mstch::render(template_content, context_map);
+      
+      // Write to output file
+      std::ofstream output_file(impl_output_path);
+      if (output_file.is_open()) {
+        output_file << rendered;
+        output_file.close();
+      }
+    }
+  }
+
+  // Create service skeleton file using template
+  string skeleton_template_path = template_dir_ + "/service_server.skeleton.cpp.mustache";
+  string skeleton_output_path = get_out_dir() + service_name + "_server.skeleton.cpp";
+  
+  if (file_exists(skeleton_template_path)) {
+    std::ifstream template_file(skeleton_template_path);
+    if (template_file.is_open()) {
+      std::string template_content((std::istreambuf_iterator<char>(template_file)),
+                                   std::istreambuf_iterator<char>());
+      template_file.close();
+
+      // Create context for the service
+      t_service_context service_context(tservice);
+      mstch::map context_map;
+      context_map["service"] = std::shared_ptr<mstch::object>(&service_context, [](mstch::object*) {});
+      context_map["program"] = std::shared_ptr<mstch::object>(new t_program_context(program_));
+      
+      // Render template
+      std::string rendered = mstch::render(template_content, context_map);
+      
+      // Write to output file
+      std::ofstream output_file(skeleton_output_path);
+      if (output_file.is_open()) {
+        output_file << rendered;
+        output_file.close();
+      }
+    }
+  }
+}
+
+bool t_mustache_generator::file_exists(const std::string& filename) {
+  std::ifstream file(filename);
+  return file.good();
 }
 
 THRIFT_REGISTER_GENERATOR(
