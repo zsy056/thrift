@@ -731,6 +731,9 @@ private:
     // Return comma-separated list of field initializers
     std::string result;
     const vector<t_field*>& fields = struct_->get_members();
+    if (fields.empty()) {
+      return std::string(); // Return empty string for structs with no fields
+    }
     for (size_t i = 0; i < fields.size(); ++i) {
       result += fields[i]->get_name() + "(false)";
       if (i < fields.size() - 1) {
@@ -1193,7 +1196,8 @@ public:
   t_typedef_context(const t_typedef* ttypedef) : typedef_(ttypedef) {
     register_methods(this, std::map<std::string, mstch::node(t_typedef_context::*)()>{
       {"name", &t_typedef_context::name},
-      {"type", &t_typedef_context::type}
+      {"type", &t_typedef_context::type},
+      {"cpp_type", &t_typedef_context::cpp_type}
     });
   }
 
@@ -1207,7 +1211,42 @@ private:
   mstch::node type() {
     return std::shared_ptr<mstch::object>(new t_type_context(typedef_->get_type()));
   }
+
+  mstch::node cpp_type() {
+    return get_cpp_type_name(typedef_->get_type(), false, false);
+  }
 };
+
+/**
+ * Helper function to generate C++ constant values
+ */
+static std::string render_const_value(const t_type* type, const t_const_value* value) {
+  if (type->is_base_type()) {
+    t_base_type::t_base tbase = ((t_base_type*)type)->get_base();
+    switch (tbase) {
+      case t_base_type::TYPE_STRING:
+      case t_base_type::TYPE_UUID:
+        return "\"" + value->get_string() + "\"";
+      case t_base_type::TYPE_BOOL:
+        return value->get_integer() ? "true" : "false";
+      case t_base_type::TYPE_I8:
+      case t_base_type::TYPE_I16:
+      case t_base_type::TYPE_I32:
+      case t_base_type::TYPE_I64:
+        return std::to_string(value->get_integer());
+      case t_base_type::TYPE_DOUBLE:
+        return std::to_string(value->get_double());
+      default:
+        return value->get_string();
+    }
+  } else if (type->is_enum()) {
+    // For enums, cast the integer value to the enum type
+    return "static_cast<" + type->get_name() + "::type>(" + std::to_string(value->get_integer()) + ")";
+  }
+  
+  // For other types, return string representation
+  return value->get_string();
+}
 
 /**
  * Context class for const types
@@ -1218,7 +1257,9 @@ public:
     register_methods(this, std::map<std::string, mstch::node(t_const_context::*)()>{
       {"name", &t_const_context::name},
       {"type", &t_const_context::type},
-      {"value", &t_const_context::value}
+      {"value", &t_const_context::value},
+      {"cpp_type", &t_const_context::cpp_type},
+      {"cpp_value", &t_const_context::cpp_value}
     });
   }
 
@@ -1237,6 +1278,68 @@ private:
     // For now, return a string representation of the value
     return const_->get_value()->get_string();
   }
+
+  mstch::node cpp_type() {
+    return get_cpp_type_name(const_->get_type(), false, false);
+  }
+
+  mstch::node cpp_value() {
+    return render_const_value(const_->get_type(), const_->get_value());
+  }
+};
+
+/**
+ * Context class for namespace information
+ */
+class t_namespace_context : public mstch::object {
+public:
+  t_namespace_context(const std::string& lang, const std::string& ns) : lang_(lang), namespace_(ns) {
+    register_methods(this, std::map<std::string, mstch::node(t_namespace_context::*)()>{
+      {"language", &t_namespace_context::language},
+      {"namespace", &t_namespace_context::namespace_value},
+      {"namespace_components", &t_namespace_context::namespace_components}
+    });
+  }
+
+private:
+  const std::string lang_;
+  const std::string namespace_;
+
+  mstch::node language() {
+    return lang_;
+  }
+
+  mstch::node namespace_value() {
+    return namespace_;
+  }
+
+  mstch::node namespace_components() {
+    // Split namespace by periods and generate nested namespace structure
+    std::string result;
+    std::string ns = namespace_;
+    
+    // Split by periods for C++ namespaces
+    size_t pos = 0;
+    std::string delimiter = ".";
+    std::vector<std::string> tokens;
+    
+    while ((pos = ns.find(delimiter)) != std::string::npos) {
+      tokens.push_back(ns.substr(0, pos));
+      ns.erase(0, pos + delimiter.length());
+    }
+    if (!ns.empty()) {
+      tokens.push_back(ns);
+    }
+    
+    for (size_t i = 0; i < tokens.size(); ++i) {
+      result += tokens[i];
+      if (i < tokens.size() - 1) {
+        result += " { namespace ";
+      }
+    }
+    
+    return result;
+  }
 };
 
 /**
@@ -1253,6 +1356,7 @@ public:
       {"services", &t_program_context::services},
       {"typedefs", &t_program_context::typedefs},
       {"consts", &t_program_context::consts},
+      {"constants", &t_program_context::constants},
       {"namespaces", &t_program_context::namespaces},
       {"includes", &t_program_context::includes}
     });
@@ -1314,11 +1418,16 @@ private:
     return result;
   }
 
+  mstch::node constants() {
+    // Same as consts, just alternative name
+    return consts();
+  }
+
   mstch::node namespaces() {
     mstch::map result;
     const std::map<std::string, std::string>& namespaces = program_->get_namespaces();
     for (const auto& ns : namespaces) {
-      result[ns.first] = ns.second;
+      result[ns.first] = std::shared_ptr<mstch::object>(new t_namespace_context(ns.first, ns.second));
     }
     return result;
   }
@@ -1393,6 +1502,12 @@ void t_mustache_generator::close_generator() {
   
   // Generate types implementation file
   write_template_output("types.cpp.mustache", get_program()->get_name() + "_types.cpp", context);
+  
+  // Generate constants files if there are constants
+  if (!get_program()->get_consts().empty()) {
+    write_template_output("constants.h.mustache", get_program()->get_name() + "_constants.h", context);
+    write_template_output("constants.cpp.mustache", get_program()->get_name() + "_constants.cpp", context);
+  }
 }
 
 std::string t_mustache_generator::display_name() const {

@@ -31,6 +31,14 @@ class {{name}};
 // Argument and result helper structs
 {{#service.function_helpers}}
 {{#has_fields}}
+
+typedef struct _{{name}}__isset {
+  _{{name}}__isset() : {{#fields}}{{name}}(false){{^last}}, {{/last}}{{/fields}} {}
+{{#fields}}
+  bool {{name}} :1;
+{{/fields}}
+} _{{name}}__isset;
+
 class {{name}} {
  public:
 
@@ -43,13 +51,15 @@ class {{name}} {
   {{{cpp_type}}} {{name}};
 {{/fields}}
 
+  _{{name}}__isset __isset;
+
 {{#fields}}
-  void __set_{{name}}(const {{{cpp_type}}}& val);
+  void __set_{{name}}(const {{{cpp_type}}}{{#is_complex_type}}&{{/is_complex_type}} val);
 {{/fields}}
 
   bool operator == (const {{name}} & rhs) const
   {
-    if (!({{equality_comparison}}))
+    if (!({{{equality_comparison}}}))
       return false;
     return true;
   }

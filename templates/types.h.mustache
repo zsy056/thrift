@@ -18,6 +18,10 @@
 #include <functional>
 #include <memory>
 
+{{#namespaces.cpp}}
+namespace {{namespace_components}} {
+{{/namespaces.cpp}}
+
 {{#enums}}
 
 
@@ -32,6 +36,11 @@ std::ostream& operator<<(std::ostream& out, const {{name}}::type& val);
 
 std::string to_string(const {{name}}::type& val);
 {{/enums}}
+
+{{#typedefs}}
+typedef {{{cpp_type}}} {{name}};
+
+{{/typedefs}}
 
 {{#structs}}
 class {{name}};
@@ -79,5 +88,9 @@ void swap({{name}} &a, {{name}} &b) noexcept;
 std::ostream& operator<<(std::ostream& out, const {{name}}& obj);
 
 {{/structs}}
+
+{{#namespaces.cpp}}
+}} // namespace
+{{/namespaces.cpp}}
 
 #endif

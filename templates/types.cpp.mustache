@@ -11,6 +11,10 @@
 
 #include <thrift/TToString.h>
 
+{{#namespaces.cpp}}
+namespace {{namespace_components}} {
+{{/namespaces.cpp}}
+
 {{#enums}}
 
 int _k{{name}}Values[] = {
@@ -150,3 +154,7 @@ std::ostream& operator<<(std::ostream& out, const {{name}}& obj)
 }
 
 {{/structs}}
+
+{{#namespaces.cpp}}
+}} // namespace
+{{/namespaces.cpp}}

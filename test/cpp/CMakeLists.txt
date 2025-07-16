@@ -174,30 +174,29 @@ if(WITH_MUSTACHE)
 
     # Create test executables using mustache generated code (if libraries build successfully)
     # This serves as a comprehensive compilation test
-    # TEMPORARILY DISABLED - mustache templates need more work for full cpp compatibility
-    # if(TARGET crosstestgenmustachecpp)
-    #     add_executable(MustacheTestServer src/TestServer.cpp)
-    #     target_link_libraries(MustacheTestServer crosstestgenmustachecpp ${Boost_LIBRARIES})
-    #     target_link_libraries(MustacheTestServer thriftnb)
-    #     target_link_libraries(MustacheTestServer thriftz)
-    #     set_target_properties(MustacheTestServer PROPERTIES
-    #         COMPILE_DEFINITIONS "MUSTACHE_GENERATED"
-    #         OUTPUT_NAME "MustacheTestServer")
+    if(TARGET crosstestgenmustachecpp)
+        add_executable(MustacheTestServer src/TestServer.cpp)
+        target_link_libraries(MustacheTestServer crosstestgenmustachecpp ${Boost_LIBRARIES})
+        target_link_libraries(MustacheTestServer thriftnb)
+        target_link_libraries(MustacheTestServer thriftz)
+        set_target_properties(MustacheTestServer PROPERTIES
+            COMPILE_DEFINITIONS "MUSTACHE_GENERATED"
+            OUTPUT_NAME "MustacheTestServer")
 
-    #     add_executable(MustacheTestClient src/TestClient.cpp)
-    #     target_link_libraries(MustacheTestClient crosstestgenmustachecpp ${Boost_LIBRARIES})
-    #     target_link_libraries(MustacheTestClient thriftnb)
-    #     target_link_libraries(MustacheTestClient thriftz)
-    #     set_target_properties(MustacheTestClient PROPERTIES
-    #         COMPILE_DEFINITIONS "MUSTACHE_GENERATED"
-    #         OUTPUT_NAME "MustacheTestClient")
+        add_executable(MustacheTestClient src/TestClient.cpp)
+        target_link_libraries(MustacheTestClient crosstestgenmustachecpp ${Boost_LIBRARIES})
+        target_link_libraries(MustacheTestClient thriftnb)
+        target_link_libraries(MustacheTestClient thriftz)
+        set_target_properties(MustacheTestClient PROPERTIES
+            COMPILE_DEFINITIONS "MUSTACHE_GENERATED"
+            OUTPUT_NAME "MustacheTestClient")
 
-    #     # Add test that verifies mustache test executables can be built
-    #     add_test(NAME MustacheGeneratorBuildTest
-    #         COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target MustacheTestServer MustacheTestClient)
-    #     set_tests_properties(MustacheGeneratorBuildTest PROPERTIES
-    #         TIMEOUT 300
-    #         LABELS "mustache;generator;build")
-    # endif()
+        # Add test that verifies mustache test executables can be built
+        add_test(NAME MustacheGeneratorBuildTest
+            COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target MustacheTestServer MustacheTestClient)
+        set_tests_properties(MustacheGeneratorBuildTest PROPERTIES
+            TIMEOUT 300
+            LABELS "mustache;generator;build")
+    endif()
 
 endif()
