@@ -156,7 +156,9 @@ static std::string get_thrift_protocol_type(const t_type* ttype) {
   return "T_VOID";
 }
 
-static std::string get_read_method(const t_type* ttype) {
+static std::string get_read_method(const t_type* ttype, const std::string& field_name, bool is_pointer = false) {
+  std::string field_ref = is_pointer ? "(*" + field_name + ")" : field_name;
+  
   if (ttype->is_base_type()) {
     t_base_type::t_base tbase = ((t_base_type*)ttype)->get_base();
     switch (tbase) {
@@ -164,30 +166,68 @@ static std::string get_read_method(const t_type* ttype) {
         return "";
       case t_base_type::TYPE_STRING:
       case t_base_type::TYPE_UUID:
-        return "String";
+        return "iprot->readString(" + field_ref + ")";
       case t_base_type::TYPE_BOOL:
-        return "Bool";
+        return "iprot->readBool(" + field_ref + ")";
       case t_base_type::TYPE_I8:
-        return "Byte";
+        return "iprot->readByte(" + field_ref + ")";
       case t_base_type::TYPE_I16:
-        return "I16";
+        return "iprot->readI16(" + field_ref + ")";
       case t_base_type::TYPE_I32:
-        return "I32";
+        return "iprot->readI32(" + field_ref + ")";
       case t_base_type::TYPE_I64:
-        return "I64";
+        return "iprot->readI64(" + field_ref + ")";
       case t_base_type::TYPE_DOUBLE:
-        return "Double";
+        return "iprot->readDouble(" + field_ref + ")";
       default:
-        return "String";
+        return "iprot->readString(" + field_ref + ")";
     }
   } else if (ttype->is_enum()) {
-    return "I32";
+    return "iprot->readI32(" + field_ref + ")";
+  } else if (ttype->is_struct() || ttype->is_xception()) {
+    return field_ref + ".read(iprot)";
+  } else if (ttype->is_container()) {
+    // For containers, we need to generate more complex read logic
+    return field_ref + ".read(iprot)";
   }
   return "";
 }
 
-static std::string get_write_method(const t_type* ttype) {
-  return get_read_method(ttype); // Same as read method for basic types
+static std::string get_write_method(const t_type* ttype, const std::string& field_name, bool is_pointer = false) {
+  std::string field_ref = is_pointer ? "(*" + field_name + ")" : field_name;
+  
+  if (ttype->is_base_type()) {
+    t_base_type::t_base tbase = ((t_base_type*)ttype)->get_base();
+    switch (tbase) {
+      case t_base_type::TYPE_VOID:
+        return "";
+      case t_base_type::TYPE_STRING:
+      case t_base_type::TYPE_UUID:
+        return "oprot->writeString(" + field_ref + ")";
+      case t_base_type::TYPE_BOOL:
+        return "oprot->writeBool(" + field_ref + ")";
+      case t_base_type::TYPE_I8:
+        return "oprot->writeByte(" + field_ref + ")";
+      case t_base_type::TYPE_I16:
+        return "oprot->writeI16(" + field_ref + ")";
+      case t_base_type::TYPE_I32:
+        return "oprot->writeI32(" + field_ref + ")";
+      case t_base_type::TYPE_I64:
+        return "oprot->writeI64(" + field_ref + ")";
+      case t_base_type::TYPE_DOUBLE:
+        return "oprot->writeDouble(" + field_ref + ")";
+      default:
+        return "oprot->writeString(" + field_ref + ")";
+    }
+  } else if (ttype->is_enum()) {
+    return "oprot->writeI32(" + field_ref + ")";
+  } else if (ttype->is_struct() || ttype->is_xception()) {
+    return field_ref + ".write(oprot)";
+  } else if (ttype->is_container()) {
+    // For containers, we need to generate more complex write logic
+    return field_ref + ".write(oprot)";
+  }
+  return "";
 }
 
 /**
@@ -225,8 +265,6 @@ public:
       {"cpp_type", &t_type_context::cpp_type},
       {"cpp_arg_type", &t_type_context::cpp_arg_type},
       {"thrift_type", &t_type_context::thrift_type},
-      {"read_method", &t_type_context::read_method},
-      {"write_method", &t_type_context::write_method},
       {"is_base_type", &t_type_context::is_base_type},
       {"is_container", &t_type_context::is_container},
       {"is_list", &t_type_context::is_list},
@@ -259,14 +297,6 @@ private:
 
   mstch::node thrift_type() {
     return get_thrift_protocol_type(type_);
-  }
-
-  mstch::node read_method() {
-    return get_read_method(type_);
-  }
-
-  mstch::node write_method() {
-    return get_write_method(type_);
   }
 
   mstch::node is_base_type() {
@@ -323,8 +353,8 @@ private:
  */
 class t_field_context : public mstch::object {
 public:
-  t_field_context(const t_field* field, const std::string& struct_name = "") 
-    : field_(field), struct_name_(struct_name), synthetic_name_(""), synthetic_type_(nullptr), synthetic_key_(0), is_last_(false) {
+  t_field_context(const t_field* field, const std::string& struct_name = "", bool is_pointer = false) 
+    : field_(field), struct_name_(struct_name), synthetic_name_(""), synthetic_type_(nullptr), synthetic_key_(0), is_last_(false), is_pointer_(is_pointer) {
     register_methods(this, std::map<std::string, mstch::node(t_field_context::*)()>{
       {"name", &t_field_context::name},
       {"struct_name", &t_field_context::struct_name},
@@ -338,15 +368,16 @@ public:
       {"required", &t_field_context::required},
       {"is_complex_type", &t_field_context::is_complex_type},
       {"has_next", &t_field_context::has_next},
-      {"last", &t_field_context::last}
+      {"last", &t_field_context::last},
+      {"is_pointer", &t_field_context::is_pointer}
     });
   }
 
   // Constructor for synthetic fields (like return value "success" field)
   t_field_context(const t_field* field, const std::string& struct_name, const std::string& synthetic_name, 
-                  const t_type* synthetic_type, int32_t synthetic_key)
+                  const t_type* synthetic_type, int32_t synthetic_key, bool is_pointer = false)
     : field_(field), struct_name_(struct_name), synthetic_name_(synthetic_name), 
-      synthetic_type_(synthetic_type), synthetic_key_(synthetic_key), is_last_(false) {
+      synthetic_type_(synthetic_type), synthetic_key_(synthetic_key), is_last_(false), is_pointer_(is_pointer) {
     register_methods(this, std::map<std::string, mstch::node(t_field_context::*)()>{
       {"name", &t_field_context::name},
       {"struct_name", &t_field_context::struct_name},
@@ -360,7 +391,8 @@ public:
       {"required", &t_field_context::required},
       {"is_complex_type", &t_field_context::is_complex_type},
       {"has_next", &t_field_context::has_next},
-      {"last", &t_field_context::last}
+      {"last", &t_field_context::last},
+      {"is_pointer", &t_field_context::is_pointer}
     });
   }
 
@@ -372,6 +404,7 @@ private:
   const t_type* synthetic_type_;
   int32_t synthetic_key_;
   bool is_last_;
+  bool is_pointer_;
 
 public:
   void set_last(bool last) { is_last_ = last; }
@@ -396,7 +429,14 @@ private:
 
   mstch::node cpp_type() {
     const t_type* type = synthetic_type_ ? synthetic_type_ : field_->get_type();
+    if (is_pointer_) {
+      return get_cpp_type_name(type, false, false) + "*";
+    }
     return get_cpp_type_name(type, false, false);
+  }
+
+  mstch::node is_pointer() {
+    return is_pointer_;
   }
 
   mstch::node thrift_type() {
@@ -406,12 +446,14 @@ private:
 
   mstch::node read_method() {
     const t_type* type = synthetic_type_ ? synthetic_type_ : field_->get_type();
-    return get_read_method(type);
+    std::string field_name = synthetic_name_.empty() ? field_->get_name() : synthetic_name_;
+    return get_read_method(type, field_name, is_pointer_);
   }
 
   mstch::node write_method() {
     const t_type* type = synthetic_type_ ? synthetic_type_ : field_->get_type();
-    return get_write_method(type);
+    std::string field_name = synthetic_name_.empty() ? field_->get_name() : synthetic_name_;
+    return get_write_method(type, field_name, is_pointer_);
   }
 
   mstch::node key() {
@@ -568,40 +610,6 @@ private:
       return "T_LIST";
     }
     return "T_VOID";
-  }
-
-  std::string get_read_method(const t_type* ttype) {
-    if (ttype->is_base_type()) {
-      t_base_type::t_base tbase = ((t_base_type*)ttype)->get_base();
-      switch (tbase) {
-        case t_base_type::TYPE_VOID:
-          return "";
-        case t_base_type::TYPE_STRING:
-        case t_base_type::TYPE_UUID:
-          return "String";
-        case t_base_type::TYPE_BOOL:
-          return "Bool";
-        case t_base_type::TYPE_I8:
-          return "Byte";
-        case t_base_type::TYPE_I16:
-          return "I16";
-        case t_base_type::TYPE_I32:
-          return "I32";
-        case t_base_type::TYPE_I64:
-          return "I64";
-        case t_base_type::TYPE_DOUBLE:
-          return "Double";
-        default:
-          return "String";
-      }
-    } else if (ttype->is_enum()) {
-      return "I32";
-    }
-    return "";
-  }
-
-  std::string get_write_method(const t_type* ttype) {
-    return get_read_method(ttype); // Same as read method for basic types
   }
 };
 
@@ -1009,6 +1017,40 @@ private:
         field_contexts[i]->set_last(i == field_contexts.size() - 1);
         result.push_back(field_contexts[i]);
       }
+    } else if (helper_type_ == "pargs") {
+      // For pargs struct, include function arguments as pointers
+      const t_struct* args = function_->get_arglist();
+      const vector<t_field*>& fields = args->get_members();
+      for (size_t i = 0; i < fields.size(); ++i) {
+        std::string struct_name = service_name_ + "_" + function_->get_name() + "_" + helper_type_;
+        auto field_ctx = std::shared_ptr<t_field_context>(new t_field_context(fields[i], struct_name, true)); // true = is_pointer
+        // Set last flag for template usage
+        field_ctx->set_last(i == fields.size() - 1);
+        result.push_back(field_ctx);
+      }
+    } else if (helper_type_ == "presult") {
+      // For presult struct, include return value and exceptions as pointers
+      std::vector<std::shared_ptr<t_field_context>> field_contexts;
+      
+      if (!function_->get_returntype()->is_void()) {
+        // Create synthetic field for return value - we need to be careful with memory management
+        std::string struct_name = service_name_ + "_" + function_->get_name() + "_" + helper_type_;
+        field_contexts.push_back(std::shared_ptr<t_field_context>(new t_field_context(nullptr, struct_name, "success", function_->get_returntype(), 0, true))); // true = is_pointer
+      }
+      
+      // Add exception fields
+      const t_struct* exceptions = function_->get_xceptions();
+      const vector<t_field*>& exc_fields = exceptions->get_members();
+      for (const auto& field : exc_fields) {
+        std::string struct_name = service_name_ + "_" + function_->get_name() + "_" + helper_type_;
+        field_contexts.push_back(std::shared_ptr<t_field_context>(new t_field_context(field, struct_name, true))); // true = is_pointer
+      }
+      
+      // Set last flag
+      for (size_t i = 0; i < field_contexts.size(); ++i) {
+        field_contexts[i]->set_last(i == field_contexts.size() - 1);
+        result.push_back(field_contexts[i]);
+      }
     }
     
     return result;
@@ -1017,7 +1059,7 @@ private:
   mstch::node equality_comparison() {
     std::string result;
     
-    if (helper_type_ == "args") {
+    if (helper_type_ == "args" || helper_type_ == "pargs") {
       const t_struct* args = function_->get_arglist();
       const vector<t_field*>& fields = args->get_members();
       for (size_t i = 0; i < fields.size(); ++i) {
@@ -1026,7 +1068,7 @@ private:
           result += " &&\n          ";
         }
       }
-    } else if (helper_type_ == "result") {
+    } else if (helper_type_ == "result" || helper_type_ == "presult") {
       std::vector<std::string> field_names;
       
       if (!function_->get_returntype()->is_void()) {
@@ -1051,9 +1093,9 @@ private:
   }
 
   mstch::node has_fields() {
-    if (helper_type_ == "args") {
+    if (helper_type_ == "args" || helper_type_ == "pargs") {
       return !function_->get_arglist()->get_members().empty();
-    } else if (helper_type_ == "result") {
+    } else if (helper_type_ == "result" || helper_type_ == "presult") {
       return !function_->get_returntype()->is_void() || !function_->get_xceptions()->get_members().empty();
     }
     return false;
@@ -1130,9 +1172,13 @@ private:
       result.push_back(std::shared_ptr<mstch::object>(
         new t_function_helper_context(func, service_->get_name(), "result")));
       
-      // Add pargs struct
+      // Add pargs struct (pointer arguments for serialization)
       result.push_back(std::shared_ptr<mstch::object>(
         new t_function_helper_context(func, service_->get_name(), "pargs")));
+      
+      // Add presult struct (pointer results for deserialization) 
+      result.push_back(std::shared_ptr<mstch::object>(
+        new t_function_helper_context(func, service_->get_name(), "presult")));
     }
     
     return result;
