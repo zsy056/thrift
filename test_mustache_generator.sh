@@ -186,6 +186,40 @@ if ! grep -q "class CalculatorNull" gen-mustache-cpp/Calculator.h; then
     exit 1
 fi
 
+# Test 7: Check client class generation
+echo "Checking client class generation..."
+if ! grep -q "class CalculatorClient" gen-mustache-cpp/Calculator.h; then
+    echo "ERROR: Calculator.h does not contain Client class"
+    exit 1
+fi
+
+if ! grep -q "void send_add" gen-mustache-cpp/Calculator.h; then
+    echo "ERROR: Calculator.h does not contain send_add method"
+    exit 1
+fi
+
+if ! grep -q "recv_add" gen-mustache-cpp/Calculator.h; then
+    echo "ERROR: Calculator.h does not contain recv_add method"
+    exit 1
+fi
+
+# Test 8: Check processor class generation  
+echo "Checking processor class generation..."
+if ! grep -q "class CalculatorProcessor" gen-mustache-cpp/Calculator.h; then
+    echo "ERROR: Calculator.h does not contain Processor class"
+    exit 1
+fi
+
+if ! grep -q "void process_add" gen-mustache-cpp/Calculator.h; then
+    echo "ERROR: Calculator.h does not contain process_add method"
+    exit 1
+fi
+
+if ! grep -q "class CalculatorProcessorFactory" gen-mustache-cpp/Calculator.h; then
+    echo "ERROR: Calculator.h does not contain ProcessorFactory class"
+    exit 1
+fi
+
 echo "Service file generation working correctly!"
 
 # Test 5: Verify that both generated headers can be compiled (syntax check)

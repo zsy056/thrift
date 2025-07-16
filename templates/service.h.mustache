@@ -25,7 +25,7 @@ class {{service.name}}If{{#service.has_extends}} : virtual public {{service.exte
  public:
   virtual ~{{service.name}}If() {}
 {{#service.functions}}
-{{#returns_void}}  virtual void {{name}}({{arguments_signature}}) = 0;{{/returns_void}}{{^returns_void}}  virtual {{return_cpp_type}} {{name}}({{arguments_signature}}) = 0;{{/returns_void}}
+  virtual {{cpp_return_signature}} {{name}}({{cpp_arguments_signature}}) = 0;
 {{/service.functions}}
 };
 
@@ -57,13 +57,131 @@ class {{service.name}}Null : virtual public {{service.name}}If{{#service.has_ext
  public:
   virtual ~{{service.name}}Null() {}
 {{#service.functions}}
-{{#returns_void}}  void {{name}}({{arguments_signature}}) override {
+{{#returns_void}}  void {{name}}({{cpp_arguments_signature}}) override {
     return;
-  }{{/returns_void}}{{^returns_void}}  {{return_cpp_type}} {{name}}({{arguments_signature}}) override {
+  }{{/returns_void}}{{^returns_void}}{{#is_complex_return}}  void {{name}}({{cpp_arguments_signature}}) override {
+    return;
+  }{{/is_complex_return}}{{^is_complex_return}}  {{return_cpp_type}} {{name}}({{cpp_arguments_signature}}) override {
     {{return_cpp_type}} _return = {{return_cpp_type}}();
     return _return;
-  }{{/returns_void}}
+  }{{/is_complex_return}}{{/returns_void}}
 {{/service.functions}}
+};
+
+// TODO: Add argument/result helper structs for each function here
+
+class {{service.name}}Client : virtual public {{service.name}}If {
+ public:
+  {{service.name}}Client(std::shared_ptr< ::apache::thrift::protocol::TProtocol> prot) {
+    setProtocol(prot);
+  }
+  {{service.name}}Client(std::shared_ptr< ::apache::thrift::protocol::TProtocol> iprot, std::shared_ptr< ::apache::thrift::protocol::TProtocol> oprot) {
+    setProtocol(iprot,oprot);
+  }
+ private:
+  void setProtocol(std::shared_ptr< ::apache::thrift::protocol::TProtocol> prot) {
+    setProtocol(prot,prot);
+  }
+  void setProtocol(std::shared_ptr< ::apache::thrift::protocol::TProtocol> iprot, std::shared_ptr< ::apache::thrift::protocol::TProtocol> oprot) {
+    piprot_=iprot;
+    poprot_=oprot;
+    iprot_ = iprot.get();
+    oprot_ = oprot.get();
+  }
+ public:
+  std::shared_ptr< ::apache::thrift::protocol::TProtocol> getInputProtocol() {
+    return piprot_;
+  }
+  std::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
+    return poprot_;
+  }
+{{#service.functions}}
+  {{cpp_return_signature}} {{name}}({{cpp_arguments_signature}}) override;
+  void send_{{name}}({{arguments_signature}});
+{{#returns_void}}  void recv_{{name}}();{{/returns_void}}{{^returns_void}}{{#is_complex_return}}  void recv_{{name}}({{return_cpp_type}}& _return);{{/is_complex_return}}{{^is_complex_return}}  {{return_cpp_type}} recv_{{name}}();{{/is_complex_return}}{{/returns_void}}
+{{/service.functions}}
+ protected:
+  std::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
+  std::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot_;
+  ::apache::thrift::protocol::TProtocol* iprot_;
+  ::apache::thrift::protocol::TProtocol* oprot_;
+};
+
+class {{service.name}}Processor : public ::apache::thrift::TDispatchProcessor {
+ protected:
+  ::std::shared_ptr<{{service.name}}If> iface_;
+  virtual bool dispatchCall(::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, const std::string& fname, int32_t seqid, void* callContext) override;
+ private:
+  typedef  void ({{service.name}}Processor::*ProcessFunction)(int32_t, ::apache::thrift::protocol::TProtocol*, ::apache::thrift::protocol::TProtocol*, void*);
+  typedef std::map<std::string, ProcessFunction> ProcessMap;
+  ProcessMap processMap_;
+{{#service.functions}}
+  void process_{{name}}(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+{{/service.functions}}
+ public:
+  {{service.name}}Processor(::std::shared_ptr<{{service.name}}If> iface) :
+    iface_(iface) {
+{{#service.functions}}
+    processMap_["{{name}}"] = &{{service.name}}Processor::process_{{name}};
+{{/service.functions}}
+  }
+
+  virtual ~{{service.name}}Processor() {}
+};
+
+class {{service.name}}ProcessorFactory : public ::apache::thrift::TProcessorFactory {
+ public:
+  {{service.name}}ProcessorFactory(const ::std::shared_ptr< {{service.name}}IfFactory >& handlerFactory) noexcept :
+      handlerFactory_(handlerFactory) {}
+
+  ::std::shared_ptr< ::apache::thrift::TProcessor > getProcessor(const ::apache::thrift::TConnectionInfo& connInfo) override;
+
+ protected:
+  ::std::shared_ptr< {{service.name}}IfFactory > handlerFactory_;
+};
+
+class {{service.name}}Multiface : virtual public {{service.name}}If{{#service.has_extends}}, public {{service.extends_name}}Multiface{{/service.has_extends}} {
+ public:
+  {{service.name}}Multiface(std::vector<std::shared_ptr<{{service.name}}If> >& ifaces) : ifaces_(ifaces) {
+{{#service.has_extends}}
+    std::vector<std::shared_ptr<{{service.extends_name}}If> > supers;
+    for (std::shared_ptr<{{service.name}}If> iface : ifaces) {
+      supers.push_back(iface);
+    }
+    {{service.extends_name}}Multiface::setIfaces(supers);
+{{/service.has_extends}}
+  }
+  virtual ~{{service.name}}Multiface() {}
+ protected:
+  std::vector<std::shared_ptr<{{service.name}}If> > ifaces_;
+  {{service.name}}Multiface() {}
+  void setIfaces(std::vector<std::shared_ptr<{{service.name}}If> >& ifaces) { ifaces_ = ifaces; }
+ public:
+{{#service.functions}}
+{{#returns_void}}  void {{name}}({{cpp_arguments_signature}}) override {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->{{name}}({{arguments_list}});
+    }
+    ifaces_[i]->{{name}}({{arguments_list}});
+  }{{/returns_void}}{{^returns_void}}{{#is_complex_return}}  void {{name}}({{cpp_arguments_signature}}) override {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->{{name}}({{arguments_list}});
+    }
+    ifaces_[i]->{{name}}({{arguments_list}});
+  }{{/is_complex_return}}{{^is_complex_return}}  {{return_cpp_type}} {{name}}({{cpp_arguments_signature}}) override {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->{{name}}({{arguments_list}});
+    }
+    return ifaces_[i]->{{name}}({{arguments_list}});
+  }{{/is_complex_return}}{{/returns_void}}
+{{/service.functions}}
+
 };
 
 #ifdef _MSC_VER

@@ -755,7 +755,10 @@ public:
       {"is_oneway", &t_function_context::is_oneway},
       {"return_cpp_type", &t_function_context::return_cpp_type},
       {"returns_void", &t_function_context::returns_void},
+      {"is_complex_return", &t_function_context::is_complex_return},
+      {"cpp_return_signature", &t_function_context::cpp_return_signature},
       {"arguments_signature", &t_function_context::arguments_signature},
+      {"cpp_arguments_signature", &t_function_context::cpp_arguments_signature},
       {"arguments_list", &t_function_context::arguments_list},
       {"has_exceptions", &t_function_context::has_exceptions}
     });
@@ -763,6 +766,11 @@ public:
 
 private:
   const t_function* function_;
+
+  bool is_complex_return_impl() {
+    const t_type* ret_type = function_->get_returntype();
+    return is_complex_type_impl(ret_type) && !ret_type->is_void();
+  }
 
   mstch::node name() {
     return function_->get_name();
@@ -801,6 +809,42 @@ private:
 
   mstch::node returns_void() {
     return function_->get_returntype()->is_void();
+  }
+
+  mstch::node is_complex_return() {
+    return is_complex_return_impl();
+  }
+
+  mstch::node cpp_return_signature() {
+    const t_type* ret_type = function_->get_returntype();
+    if (ret_type->is_void()) {
+      return std::string("void");
+    } else if (is_complex_return_impl()) {
+      return std::string("void");
+    } else {
+      return get_cpp_type_name(ret_type, false, false);
+    }
+  }
+
+  mstch::node cpp_arguments_signature() {
+    std::string result;
+    const vector<t_field*>& args = function_->get_arglist()->get_members();
+    
+    // Add regular arguments
+    for (size_t i = 0; i < args.size(); ++i) {
+      result += get_cpp_type_name(args[i]->get_type(), false, true) + " " + args[i]->get_name();
+      if (i < args.size() - 1 || is_complex_return_impl()) {
+        result += ", ";
+      }
+    }
+    
+    // Add return reference parameter for complex return types
+    const t_type* ret_type = function_->get_returntype();
+    if (is_complex_return_impl()) {
+      result += get_cpp_type_name(ret_type, false, false) + "& _return";
+    }
+    
+    return std::string(result);
   }
 
   mstch::node arguments_signature() {
