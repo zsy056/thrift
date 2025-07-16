@@ -58,7 +58,7 @@ uint32_t {{name}}::write(::apache::thrift::protocol::TProtocol* oprot) const {
 // Implementation of {{service.name}}Client
 
 {{#service.functions}}
-{{cpp_return_signature}} {{service.name}}Client::{{name}}({{cpp_arguments_signature}}) {
+{{{cpp_return_signature}}} {{service.name}}Client::{{name}}({{{cpp_arguments_signature}}}) {
 {{^is_oneway}}
   send_{{name}}({{arguments_list}});
 {{#returns_void}}
@@ -78,7 +78,7 @@ uint32_t {{name}}::write(::apache::thrift::protocol::TProtocol* oprot) const {
 {{/is_oneway}}
 }
 
-void {{service.name}}Client::send_{{name}}({{arguments_signature}}) {
+void {{service.name}}Client::send_{{name}}({{{arguments_signature}}}) {
   int32_t cseqid = 0;
   oprot_->writeMessageBegin("{{name}}", ::apache::thrift::protocol::{{#is_oneway}}T_ONEWAY{{/is_oneway}}{{^is_oneway}}T_CALL{{/is_oneway}}, cseqid);
 
@@ -132,10 +132,10 @@ void {{service.name}}Client::recv_{{name}}() {
 {{/returns_void}}
 {{^returns_void}}
 {{#is_complex_return}}
-void {{service.name}}Client::recv_{{name}}({{return_cpp_type}}& _return) {
+void {{service.name}}Client::recv_{{name}}({{{return_cpp_type}}}& _return) {
 {{/is_complex_return}}
 {{^is_complex_return}}
-{{return_cpp_type}} {{service.name}}Client::recv_{{name}}() {
+{{{return_cpp_type}}} {{service.name}}Client::recv_{{name}}() {
 {{/is_complex_return}}
 
   int32_t rseqid = 0;

@@ -52,13 +52,13 @@ class {{name}} : public virtual ::apache::thrift::TBase {
 
   virtual ~{{name}}() noexcept;
 {{#fields}}
-  {{cpp_type}} {{name}};
+  {{{cpp_type}}} {{name}};
 {{/fields}}
 
   _{{name}}__isset __isset;
 
 {{#fields}}
-  void __set_{{name}}(const {{cpp_type}}{{#is_complex_type}}&{{/is_complex_type}} val);
+  void __set_{{name}}(const {{{cpp_type}}}{{#is_complex_type}}&{{/is_complex_type}} val);
 
 {{/fields}}
   bool operator == (const {{name}} & rhs) const;

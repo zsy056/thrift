@@ -48,7 +48,7 @@ std::string to_string(const {{name}}::type& val) {
    : {{{init_list}}}}
 
 {{#fields}}
-void {{struct_name}}::__set_{{name}}(const {{cpp_type}}{{#is_complex_type}}&{{/is_complex_type}} val) {
+void {{struct_name}}::__set_{{name}}(const {{{cpp_type}}}{{#is_complex_type}}&{{/is_complex_type}} val) {
   this->{{name}} = val;
 }
 {{/fields}}

@@ -40,11 +40,11 @@ class {{name}} {
   virtual ~{{name}}() noexcept;
 
 {{#fields}}
-  {{cpp_type}} {{name}};
+  {{{cpp_type}}} {{name}};
 {{/fields}}
 
 {{#fields}}
-  void __set_{{name}}(const {{cpp_type}}& val);
+  void __set_{{name}}(const {{{cpp_type}}}& val);
 {{/fields}}
 
   bool operator == (const {{name}} & rhs) const
@@ -72,7 +72,7 @@ class {{service.name}}If{{#service.has_extends}} : virtual public {{service.exte
  public:
   virtual ~{{service.name}}If() {}
 {{#service.functions}}
-  virtual {{cpp_return_signature}} {{name}}({{cpp_arguments_signature}}) = 0;
+  virtual {{{cpp_return_signature}}} {{name}}({{{cpp_arguments_signature}}}) = 0;
 {{/service.functions}}
 };
 
@@ -104,12 +104,12 @@ class {{service.name}}Null : virtual public {{service.name}}If{{#service.has_ext
  public:
   virtual ~{{service.name}}Null() {}
 {{#service.functions}}
-{{#returns_void}}  void {{name}}({{cpp_arguments_signature}}) override {
+{{#returns_void}}  void {{name}}({{{cpp_arguments_signature}}}) override {
     return;
-  }{{/returns_void}}{{^returns_void}}{{#is_complex_return}}  void {{name}}({{cpp_arguments_signature}}) override {
+  }{{/returns_void}}{{^returns_void}}{{#is_complex_return}}  void {{name}}({{{cpp_arguments_signature}}}) override {
     return;
-  }{{/is_complex_return}}{{^is_complex_return}}  {{return_cpp_type}} {{name}}({{cpp_arguments_signature}}) override {
-    {{return_cpp_type}} _return = {{return_cpp_type}}();
+  }{{/is_complex_return}}{{^is_complex_return}}  {{{return_cpp_type}}} {{name}}({{{cpp_arguments_signature}}}) override {
+    {{{return_cpp_type}}} _return = {{{return_cpp_type}}}();
     return _return;
   }{{/is_complex_return}}{{/returns_void}}
 {{/service.functions}}
@@ -143,9 +143,9 @@ class {{service.name}}Client : virtual public {{service.name}}If {
     return poprot_;
   }
 {{#service.functions}}
-  {{cpp_return_signature}} {{name}}({{cpp_arguments_signature}}) override;
-  void send_{{name}}({{arguments_signature}});
-{{#returns_void}}  void recv_{{name}}();{{/returns_void}}{{^returns_void}}{{#is_complex_return}}  void recv_{{name}}({{return_cpp_type}}& _return);{{/is_complex_return}}{{^is_complex_return}}  {{return_cpp_type}} recv_{{name}}();{{/is_complex_return}}{{/returns_void}}
+  {{{cpp_return_signature}}} {{name}}({{{cpp_arguments_signature}}}) override;
+  void send_{{name}}({{{arguments_signature}}});
+{{#returns_void}}  void recv_{{name}}();{{/returns_void}}{{^returns_void}}{{#is_complex_return}}  void recv_{{name}}({{{return_cpp_type}}}& _return);{{/is_complex_return}}{{^is_complex_return}}  {{{return_cpp_type}}} recv_{{name}}();{{/is_complex_return}}{{/returns_void}}
 {{/service.functions}}
  protected:
   std::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
@@ -205,21 +205,21 @@ class {{service.name}}Multiface : virtual public {{service.name}}If{{#service.ha
   void setIfaces(std::vector<std::shared_ptr<{{service.name}}If> >& ifaces) { ifaces_ = ifaces; }
  public:
 {{#service.functions}}
-{{#returns_void}}  void {{name}}({{cpp_arguments_signature}}) override {
+{{#returns_void}}  void {{name}}({{{cpp_arguments_signature}}}) override {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
       ifaces_[i]->{{name}}({{arguments_list}});
     }
     ifaces_[i]->{{name}}({{arguments_list}});
-  }{{/returns_void}}{{^returns_void}}{{#is_complex_return}}  void {{name}}({{cpp_arguments_signature}}) override {
+  }{{/returns_void}}{{^returns_void}}{{#is_complex_return}}  void {{name}}({{{cpp_arguments_signature}}}) override {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
       ifaces_[i]->{{name}}({{arguments_list}});
     }
     ifaces_[i]->{{name}}({{arguments_list}});
-  }{{/is_complex_return}}{{^is_complex_return}}  {{return_cpp_type}} {{name}}({{cpp_arguments_signature}}) override {
+  }{{/is_complex_return}}{{^is_complex_return}}  {{{return_cpp_type}}} {{name}}({{{cpp_arguments_signature}}}) override {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
