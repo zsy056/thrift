@@ -1966,6 +1966,7 @@ void t_cpp_generator::generate_service(t_service* tservice) {
   }
   f_header_ << "#include <thrift/async/TConcurrentClientSyncInfo.h>" << '\n';
   f_header_ << "#include <memory>" << '\n';
+  f_header_ << "#include <unordered_map>" << '\n';
   f_header_ << "#include \"" << get_include_prefix(*get_program()) << program_name_ << "_types.h\""
             << '\n';
 
@@ -3269,10 +3270,10 @@ void ProcessorGenerator::generate_class_definition() {
               << indent() << "    specialized(s) {}" << '\n' << indent()
               << "  ProcessFunctions() : generic(nullptr), specialized(nullptr) "
               << "{}" << '\n' << indent() << "};" << '\n' << indent()
-              << "typedef std::map<std::string, ProcessFunctions> "
+              << "typedef std::unordered_map<std::string, ProcessFunctions> "
               << "ProcessMap;" << '\n';
   } else {
-    f_header_ << indent() << "typedef std::map<std::string, ProcessFunction> "
+    f_header_ << indent() << "typedef std::unordered_map<std::string, ProcessFunction> "
               << "ProcessMap;" << '\n';
   }
   f_header_ << indent() << "ProcessMap processMap_;" << '\n';
