@@ -67,6 +67,7 @@ public:
     gen_no_ostream_operators_ = false;
     gen_no_skeleton_ = false;
     gen_no_constructors_ = false;
+    gen_private_optional_ = false;
     has_members_ = false;
 
     for( iter = parsed_options.begin(); iter != parsed_options.end(); ++iter) {
@@ -91,6 +92,8 @@ public:
         gen_no_skeleton_ = true;
       } else if ( iter->first.compare("no_constructors") == 0) {
         gen_no_constructors_ = true;
+      } else if ( iter->first.compare("private_optional") == 0) {
+        gen_private_optional_ = true;
       } else {
         throw "unknown option cpp:" + iter->first;
       }
@@ -383,6 +386,11 @@ private:
    * True if we should omit generating constructors/destructors/assignment/destructors.
    */
   bool gen_no_constructors_;
+
+  /**
+   * True if we should generate optional fields as private members with getters.
+   */
+  bool gen_private_optional_;
 
   /**
    * True if thrift has member(s)
@@ -1315,12 +1323,26 @@ void t_cpp_generator::generate_struct_declaration(ostream& out,
   }
 
   // Declare all fields
-  for (m_iter = members.begin(); m_iter != members.end(); ++m_iter) {
-    generate_java_doc(out, *m_iter);
-    indent(out) << declare_field(*m_iter,
-                                 !pointers && gen_no_constructors_,
-                                 (pointers && !(*m_iter)->get_type()->is_xception()),
-                                 !read) << '\n';
+  if (gen_private_optional_ && !pointers) {
+    // When private_optional is enabled, declare non-optional fields first in public section
+    for (m_iter = members.begin(); m_iter != members.end(); ++m_iter) {
+      if ((*m_iter)->get_req() != t_field::T_OPTIONAL) {
+        generate_java_doc(out, *m_iter);
+        indent(out) << declare_field(*m_iter,
+                                     gen_no_constructors_,
+                                     false,
+                                     !read) << '\n';
+      }
+    }
+  } else {
+    // Default behavior: all fields in public section
+    for (m_iter = members.begin(); m_iter != members.end(); ++m_iter) {
+      generate_java_doc(out, *m_iter);
+      indent(out) << declare_field(*m_iter,
+                                   !pointers && gen_no_constructors_,
+                                   (pointers && !(*m_iter)->get_type()->is_xception()),
+                                   !read) << '\n';
+    }
   }
 
   // Add the __isset data member if we need it, using the definition from above
@@ -1341,6 +1363,22 @@ void t_cpp_generator::generate_struct_declaration(ostream& out,
       out << '\n' << indent() << "void __set_" << (*m_iter)->get_name() << "("
           << type_name((*m_iter)->get_type(), false, true);
       out << " val);" << '\n';
+    }
+  }
+
+  // Generate getter methods when private_optional is enabled
+  if (gen_private_optional_ && !pointers) {
+    for (m_iter = members.begin(); m_iter != members.end(); ++m_iter) {
+      std::string field_type = type_name((*m_iter)->get_type());
+      if (is_reference((*m_iter))) {
+        field_type = "::std::shared_ptr<" + field_type + ">";
+      }
+      // Non-const getter
+      out << '\n' << indent() << field_type << "& __get_" << (*m_iter)->get_name() 
+          << "() { return " << (*m_iter)->get_name() << "; }" << '\n';
+      // Const getter
+      indent(out) << "const " << field_type << "& __get_" << (*m_iter)->get_name() 
+          << "() const { return " << (*m_iter)->get_name() << "; }" << '\n';
     }
   }
   out << '\n';
@@ -1403,6 +1441,34 @@ void t_cpp_generator::generate_struct_declaration(ostream& out,
     out << indent();
     generate_exception_what_method_decl(out, tstruct, false);
     out << ";" << '\n';
+  }
+
+  // Generate private section for optional fields when private_optional is enabled
+  if (gen_private_optional_ && !pointers) {
+    bool has_optional_fields = false;
+    for (m_iter = members.begin(); m_iter != members.end(); ++m_iter) {
+      if ((*m_iter)->get_req() == t_field::T_OPTIONAL) {
+        has_optional_fields = true;
+        break;
+      }
+    }
+    
+    if (has_optional_fields) {
+      indent_down();
+      out << '\n' << indent() << " private:" << '\n';
+      indent_up();
+      
+      // Declare optional fields in private section
+      for (m_iter = members.begin(); m_iter != members.end(); ++m_iter) {
+        if ((*m_iter)->get_req() == t_field::T_OPTIONAL) {
+          generate_java_doc(out, *m_iter);
+          indent(out) << declare_field(*m_iter,
+                                       gen_no_constructors_,
+                                       false,
+                                       !read) << '\n';
+        }
+      }
+    }
   }
 
   indent_down();
