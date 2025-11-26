@@ -41,7 +41,12 @@ option(BUILD_LIBRARIES "Build Thrift libraries" ON)
 
 if (NOT Boost_USE_STATIC_LIBS)
     add_definitions(-DBOOST_ALL_DYN_LINK)
-    add_definitions(-DBOOST_TEST_DYN_LINK)
+    if (NOT MINGW)
+        add_definitions(-DBOOST_TEST_DYN_LINK)
+    else()
+        # MinGW builds do not automatically link boost_unit_test_framework,
+        # so keep the static inline entry point by skipping BOOST_TEST_DYN_LINK.
+    endif()
 endif()
 
 # as3
