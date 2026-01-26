@@ -263,5 +263,74 @@ else()
     message(STATUS "Skipping generated private_optional compile-check (no thrift-compiler target)")
 endif()
 
+# Compile-check generated C++ output for the fixture thrift file with pure_enums=enum_class enabled.
+# This ensures the generator output is compileable (no link step required).
+if(TARGET thrift-compiler)
+    # Generated C++ includes Thrift runtime headers which may require Boost.
+    # Only enable the compile-check when Boost headers are available.
+    set(_enum_class_boost_include_dirs "")
+    find_package(Boost QUIET)
+    if(Boost_FOUND)
+        set(_enum_class_boost_include_dirs ${Boost_INCLUDE_DIRS})
+    elseif(DEFINED BOOST_ROOT)
+        if(EXISTS "${BOOST_ROOT}/include/boost")
+            set(_enum_class_boost_include_dirs "${BOOST_ROOT}/include")
+        elseif(EXISTS "${BOOST_ROOT}/boost")
+            set(_enum_class_boost_include_dirs "${BOOST_ROOT}")
+        endif()
+    endif()
+
+    if(_enum_class_boost_include_dirs STREQUAL "")
+        message(STATUS "Skipping generated enum_class compile-check (Boost headers not found)")
+    else()
+    set(_enum_class_thrift
+        "${CMAKE_CURRENT_SOURCE_DIR}/cpp/test_enum_class.thrift"
+    )
+    set(_enum_class_gen_out_dir
+        "${CMAKE_CURRENT_BINARY_DIR}/generated-enum-class"
+    )
+    set(_enum_class_gen_cpp_dir
+        "${_enum_class_gen_out_dir}/gen-cpp"
+    )
+    set(_enum_class_types_cpp
+        "${_enum_class_gen_cpp_dir}/test_enum_class_types.cpp"
+    )
+
+    add_custom_command(
+        OUTPUT "${_enum_class_types_cpp}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${_enum_class_gen_out_dir}"
+        COMMAND ${CMAKE_COMMAND} -E chdir "${_enum_class_gen_out_dir}"
+            $<TARGET_FILE:thrift-compiler>
+            --gen cpp:pure_enums=enum_class
+            -o "${_enum_class_gen_out_dir}"
+            "${_enum_class_thrift}"
+        DEPENDS thrift-compiler "${_enum_class_thrift}"
+        VERBATIM
+    )
+
+    set_source_files_properties(
+        "${_enum_class_types_cpp}"
+        PROPERTIES GENERATED TRUE
+    )
+
+    add_library(thrift_compiler_generated_enum_class STATIC
+        "${_enum_class_types_cpp}"
+    )
+
+    target_include_directories(thrift_compiler_generated_enum_class PRIVATE
+        "${_enum_class_gen_cpp_dir}"
+        "${THRIFT_COMPILER_SOURCE_DIR}/../../lib/cpp/src"
+        "${CMAKE_CURRENT_BINARY_DIR}"
+        "${CMAKE_BINARY_DIR}"
+        ${_enum_class_boost_include_dirs}
+    )
+
+    # Build the compile-check as part of the standard test build.
+    add_dependencies(thrift_compiler_tests thrift_compiler_generated_enum_class)
+    endif()
+else()
+    message(STATUS "Skipping generated enum_class compile-check (no thrift-compiler target)")
+endif()
+
 enable_testing()
 add_test(NAME ThriftCompilerTests COMMAND thrift_compiler_tests)
