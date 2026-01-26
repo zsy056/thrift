@@ -115,25 +115,46 @@ static string normalize_for_compare(string s) {
 }
 
 // Helper function to extract enum definition from generated header
+// Handles struct Color { enum type { ... }; }; or enum Color { ... }; or enum class Color { ... };
 string extract_enum_definition(const string& content, const string& enum_name) {
-    // Look for the enum definition
-    size_t enum_start = content.find("enum " + enum_name);
+    // First try to find struct wrapper (default behavior)
+    size_t struct_start = content.find("struct " + enum_name + " {");
+    if (struct_start != string::npos) {
+        // Find the closing brace and semicolon for the struct
+        size_t brace_count = 0;
+        size_t pos = content.find("{", struct_start);
+        if (pos == string::npos) return "";
+        
+        brace_count = 1;
+        pos++;
+        
+        while (pos < content.length() && brace_count > 0) {
+            if (content[pos] == '{') brace_count++;
+            else if (content[pos] == '}') brace_count--;
+            pos++;
+        }
+        
+        if (brace_count == 0) {
+            // Skip whitespace and semicolon
+            while (pos < content.length() && (content[pos] == ' ' || content[pos] == '\n' || content[pos] == '\r')) pos++;
+            if (pos < content.length() && content[pos] == ';') pos++;
+            return content.substr(struct_start, pos - struct_start);
+        }
+        return "";
+    }
+    
+    // Try to find enum class
+    size_t enum_start = content.find("enum class " + enum_name + " {");
     if (enum_start == string::npos) {
-        // Try to find enum class
-        enum_start = content.find("enum class " + enum_name);
+        // Try to find plain enum
+        enum_start = content.find("enum " + enum_name + " {");
         if (enum_start == string::npos) {
             return "";
         }
     }
     
-    // Find the opening brace
-    size_t brace_start = content.find("{", enum_start);
-    if (brace_start == string::npos) {
-        return "";
-    }
-    
-    // Find the matching closing brace
-    size_t brace_end = content.find("};", brace_start);
+    // Find the closing brace and semicolon
+    size_t brace_end = content.find("};", enum_start);
     if (brace_end == string::npos) {
         return "";
     }
@@ -194,9 +215,16 @@ TEST_CASE("t_cpp_generator default behavior generates wrapper struct for enums",
     string generated_content = read_file(generated_file);
     REQUIRE(!generated_content.empty());
 
-    // Verify it generates a struct wrapper with an enum inside
-    REQUIRE(generated_content.find("struct Color") != string::npos);
-    REQUIRE(generated_content.find("enum type") != string::npos);
+    // Extract enum definition
+    string enum_def = extract_enum_definition(generated_content, "Color");
+    REQUIRE(!enum_def.empty());
+
+    // Compare generated enum definition against the expected fixture.
+    string expected_path = join_path(source_dir(), "expected_Color_default.txt");
+    string expected_content = read_file(expected_path);
+    REQUIRE(!expected_content.empty());
+
+    REQUIRE(normalize_for_compare(enum_def) == normalize_for_compare(expected_content));
 }
 
 TEST_CASE("t_cpp_generator with pure_enums generates plain enum", "[functional]")
@@ -225,12 +253,12 @@ TEST_CASE("t_cpp_generator with pure_enums generates plain enum", "[functional]"
     string enum_def = extract_enum_definition(generated_content, "Color");
     REQUIRE(!enum_def.empty());
 
-    // Verify it generates a plain enum (not enum class)
-    REQUIRE(enum_def.find("enum Color") != string::npos);
-    REQUIRE(enum_def.find("enum class") == string::npos);
-    
-    // Should NOT have struct wrapper
-    REQUIRE(generated_content.find("struct Color") == string::npos);
+    // Compare generated enum definition against the expected fixture.
+    string expected_path = join_path(source_dir(), "expected_Color_pure_enums.txt");
+    string expected_content = read_file(expected_path);
+    REQUIRE(!expected_content.empty());
+
+    REQUIRE(normalize_for_compare(enum_def) == normalize_for_compare(expected_content));
 }
 
 TEST_CASE("t_cpp_generator with pure_enums=enum_class generates C++ 11 enum class", "[functional]")
@@ -259,9 +287,10 @@ TEST_CASE("t_cpp_generator with pure_enums=enum_class generates C++ 11 enum clas
     string enum_def = extract_enum_definition(generated_content, "Color");
     REQUIRE(!enum_def.empty());
 
-    // Verify it generates an enum class
-    REQUIRE(enum_def.find("enum class Color") != string::npos);
-    
-    // Should NOT have struct wrapper
-    REQUIRE(generated_content.find("struct Color") == string::npos);
+    // Compare generated enum definition against the expected fixture.
+    string expected_path = join_path(source_dir(), "expected_Color_enum_class.txt");
+    string expected_content = read_file(expected_path);
+    REQUIRE(!expected_content.empty());
+
+    REQUIRE(normalize_for_compare(enum_def) == normalize_for_compare(expected_content));
 }
