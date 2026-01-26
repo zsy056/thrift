@@ -39,7 +39,7 @@ extern std::string g_curdir;
 extern std::string g_curpath;
 
 // Helper function to read file content
-string read_file(const string& filename) {
+static string read_file(const string& filename) {
     ifstream file(filename);
     if (!file.is_open()) {
         return "";
