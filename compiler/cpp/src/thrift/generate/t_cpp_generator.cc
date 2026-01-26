@@ -618,7 +618,7 @@ void t_cpp_generator::generate_enum(t_enum* tenum) {
     f_types_ << indent() << "struct " << tenum->get_name() << " {" << '\n';
     indent_up();
   }
-  if (gen_enum_class_) {
+  if (gen_pure_enums_ && gen_enum_class_) {
     f_types_ << indent() << "enum class " << enum_name;
   } else {
     f_types_ << indent() << "enum " << enum_name;
