@@ -99,6 +99,7 @@ add_test(NAME SpecificNameTest COMMAND SpecificNameTest)
 set(forwardsettertestgencpp_SOURCES
     gen-cpp-forward/ThriftTest_types.cpp
     gen-cpp-forward/ThriftTest_constants.cpp
+    src/ThriftTest_extras.cpp
 )
 add_library(forwardsettertestgencpp STATIC ${forwardsettertestgencpp_SOURCES})
 target_include_directories(forwardsettertestgencpp PRIVATE 
@@ -117,6 +118,7 @@ add_test(NAME ForwardSetterTest COMMAND ForwardSetterTest)
 set(privateoptonaltestgencpp_SOURCES
     gen-cpp-private/ThriftTest_types.cpp
     gen-cpp-private/ThriftTest_constants.cpp
+    src/ThriftTest_extras.cpp
 )
 add_library(privateoptonaltestgencpp STATIC ${privateoptonaltestgencpp_SOURCES})
 target_include_directories(privateoptonaltestgencpp PRIVATE 
@@ -135,6 +137,7 @@ add_test(NAME PrivateOptionalTest COMMAND PrivateOptionalTest)
 set(enumclasstestgencpp_SOURCES
     gen-cpp-enumclass/ThriftTest_types.cpp
     gen-cpp-enumclass/ThriftTest_constants.cpp
+    src/ThriftTest_extras.cpp
 )
 add_library(enumclasstestgencpp STATIC ${enumclasstestgencpp_SOURCES})
 target_include_directories(enumclasstestgencpp PRIVATE 
