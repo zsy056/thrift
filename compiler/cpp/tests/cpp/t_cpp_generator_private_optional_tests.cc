@@ -141,8 +141,9 @@ TEST_CASE("t_cpp_generator with moveable_types only generates move semantics", "
     
     // Verify setters are NOT templated (traditional setters)
     REQUIRE(class_def.find("void __set_complex_string(const std::string& val);") != string::npos);
-    REQUIRE(class_def.find("template") == string::npos || 
-            class_def.find("template <typename T_>") == string::npos);
+    // Should not have template setters
+    bool hasTemplateSetters = (class_def.find("template <typename T_>") != string::npos);
+    REQUIRE(!hasTemplateSetters);
 }
 
 TEST_CASE("t_cpp_generator with moveable_types=forward_setter generates forwarding setters", "[functional]")
