@@ -24,8 +24,11 @@ BUILT_SOURCES = gen-cpp/ThriftTest.cpp \
                 gen-cpp/SecondService.cpp \
                 gen-cpp/Service.cpp \
                 gen-cpp-forward/ThriftTest_types.cpp \
+                gen-cpp-forward/ThriftTest_constants.cpp \
                 gen-cpp-private/ThriftTest_types.cpp \
-                gen-cpp-enumclass/ThriftTest_types.cpp
+                gen-cpp-private/ThriftTest_constants.cpp \
+                gen-cpp-enumclass/ThriftTest_types.cpp \
+                gen-cpp-enumclass/ThriftTest_constants.cpp
 
 noinst_LTLIBRARIES = libtestgencpp.la libstresstestgencpp.la
 nodist_libtestgencpp_la_SOURCES = \
