@@ -64,6 +64,7 @@ public:
     gen_no_default_operators_ = false;
     gen_templates_ = false;
     gen_templates_only_ = false;
+    gen_print_ostream_template_ = false;
     gen_moveable_ = false;
     gen_no_ostream_operators_ = false;
     gen_no_skeleton_ = false;
@@ -88,6 +89,7 @@ public:
       } else if( iter->first.compare("templates") == 0) {
         gen_templates_ = true;
         gen_templates_only_ = (iter->second == "only");
+        gen_print_ostream_template_ = (iter->second == "print_ostream");
       } else if( iter->first.compare("moveable_types") == 0) {
         gen_moveable_ = true;
       } else if ( iter->first.compare("no_ostream_operators") == 0) {
@@ -357,6 +359,11 @@ private:
   bool gen_templates_only_;
 
   /**
+   * True if we should generate templated printTo and operator<< with generic ostream type.
+   */
+  bool gen_print_ostream_template_;
+
+  /**
    * True if we should generate move constructors & assignment operators.
    */
   bool gen_moveable_;
@@ -452,7 +459,7 @@ void t_cpp_generator::init_generator() {
   string f_types_impl_name = get_out_dir() + program_name_ + "_types.cpp";
   f_types_impl_.open(f_types_impl_name.c_str());
 
-  if (gen_templates_) {
+  if (gen_templates_ || gen_print_ostream_template_) {
     // If we don't open the stream, it appears to just discard data,
     // which is fine.
     string f_types_tcc_name = get_out_dir() + program_name_ + "_types.tcc";
@@ -542,7 +549,7 @@ void t_cpp_generator::close_generator() {
   // Include the types.tcc file from the types header file,
   // so clients don't have to explicitly include the tcc file.
   // TODO(simpkins): Make this a separate option.
-  if (gen_templates_) {
+  if (gen_templates_ || gen_print_ostream_template_) {
     f_types_ << "#include \"" << get_include_prefix(*get_program()) << program_name_
              << "_types.tcc\"" << '\n' << '\n';
   }
@@ -987,7 +994,8 @@ void t_cpp_generator::generate_cpp_struct(t_struct* tstruct, bool is_exception) 
   }
 
   if (!has_custom_ostream(tstruct)) {
-    generate_struct_print_method(f_types_impl_, tstruct);
+    std::ostream& print_out = (gen_print_ostream_template_ ? f_types_tcc_ : f_types_impl_);
+    generate_struct_print_method(print_out, tstruct);
   }
 
   if (is_exception) {
@@ -1583,7 +1591,8 @@ void t_cpp_generator::generate_struct_definition(ostream& out,
     }
   }
   if (is_user_struct) {
-    generate_struct_ostream_operator(out, tstruct);
+    std::ostream& ostream_out = (gen_print_ostream_template_ ? f_types_tcc_ : f_types_);
+    generate_struct_ostream_operator(ostream_out, tstruct);
   }
   out << '\n';
 }
@@ -1914,18 +1923,32 @@ void t_cpp_generator::generate_struct_swap_decl(std::ostream& out, t_struct* tst
 }
 
 void t_cpp_generator::generate_struct_ostream_operator_decl(std::ostream& out, t_struct* tstruct) {
-  out << "std::ostream& operator<<(std::ostream& out, const "
-      << tstruct->get_name()
-      << "& obj);" << '\n';
+  if (gen_print_ostream_template_) {
+    out << "template<typename OStream>" << '\n';
+    out << "OStream& operator<<(OStream& out, const "
+        << tstruct->get_name()
+        << "& obj);" << '\n';
+  } else {
+    out << "std::ostream& operator<<(std::ostream& out, const "
+        << tstruct->get_name()
+        << "& obj);" << '\n';
+  }
   out << '\n';
 }
 
 void t_cpp_generator::generate_struct_ostream_operator(std::ostream& out, t_struct* tstruct) {
   if (!has_custom_ostream(tstruct)) {
     // thrift defines this behavior
-    out << "std::ostream& operator<<(std::ostream& out, const "
-        << tstruct->get_name()
-        << "& obj)" << '\n';
+    if (gen_print_ostream_template_) {
+      out << "template<typename OStream>" << '\n';
+      out << "OStream& operator<<(OStream& out, const "
+          << tstruct->get_name()
+          << "& obj)" << '\n';
+    } else {
+      out << "std::ostream& operator<<(std::ostream& out, const "
+          << tstruct->get_name()
+          << "& obj)" << '\n';
+    }
     scope_up(out);
     out << indent() << "obj.printTo(out);" << '\n'
         << indent() << "return out;" << '\n';
@@ -1935,11 +1958,20 @@ void t_cpp_generator::generate_struct_ostream_operator(std::ostream& out, t_stru
 }
 
 void t_cpp_generator::generate_struct_print_method_decl(std::ostream& out, t_struct* tstruct) {
-  out << "void ";
-  if (tstruct) {
-    out << tstruct->get_name() << "::";
+  if (gen_print_ostream_template_) {
+    out << "template<typename OStream>" << '\n';
+    out << "void ";
+    if (tstruct) {
+      out << tstruct->get_name() << "::";
+    }
+    out << "printTo(OStream& out) const";
+  } else {
+    out << "void ";
+    if (tstruct) {
+      out << tstruct->get_name() << "::";
+    }
+    out << "printTo(std::ostream& out) const";
   }
-  out << "printTo(std::ostream& out) const";
 }
 
 void t_cpp_generator::generate_exception_what_method_decl(std::ostream& out,
