@@ -25,16 +25,33 @@
 #include <iostream>
 #include <string>
 #include <cassert>
+#include <type_traits>
 
 // Include generated thrift types with private_optional option
 #include "ThriftTest_types.h"
 
 using namespace thrift::test;
 
+// SFINAE test to check if a field is directly accessible
+template<typename T, typename = void>
+struct has_public_string_thing : std::false_type {};
+
+template<typename T>
+struct has_public_string_thing<T, decltype(void(std::declval<T>().string_thing))> : std::true_type {};
+
+// For testing private_optional: In ThriftTest, string fields in Xtruct are not optional,
+// so they should remain public. However, we can create a compile-time test structure.
+// Note: ThriftTest doesn't have optional string fields in Xtruct, so we verify the pattern works.
+
 int main() {
     std::cout << "Testing private_optional with ThriftTest types..." << std::endl;
     
-    // Test 1: Verify getters work for accessing private optional fields
+    // Compile-time verification: required fields should still be publicly accessible
+    static_assert(has_public_string_thing<Xtruct>::value,
+                  "Required fields (like string_thing in Xtruct) should remain public");
+    std::cout << "  ✓ Compile-time verification: Required fields are public" << std::endl;
+    
+    // Test 1: Verify getters work for accessing fields
     {
         Xtruct x;
         x.__set_string_thing("test");
@@ -60,11 +77,23 @@ int main() {
         x.__set_string_thing("nested");
         x.__set_i32_thing(99);
         x2.__set_struct_thing(x);
-        assert(x2.__get_struct_thing().string_thing == "nested");
-        assert(x2.__get_struct_thing().i32_thing == 99);
+        // With private_optional, use getters to access fields
+        assert(x2.__get_struct_thing().__get_string_thing() == "nested");
+        assert(x2.__get_struct_thing().__get_i32_thing() == 99);
         std::cout << "  ✓ Getters/setters for struct fields work" << std::endl;
     }
     
+    // Test 4: Verify direct access to required fields still works
+    {
+        Xtruct x;
+        x.string_thing = "direct access";
+        x.i32_thing = 123;
+        assert(x.string_thing == "direct access");
+        assert(x.i32_thing == 123);
+        std::cout << "  ✓ Direct access to required fields works" << std::endl;
+    }
+    
     std::cout << "\n✅ All private_optional tests passed!" << std::endl;
+    std::cout << "   Verified at compile-time: Required fields remain publicly accessible" << std::endl;
     return 0;
 }
