@@ -41,6 +41,7 @@ acinclude.m4
 apache-thrift-test-library
 autom4te.cache
 cmake-*
+build-*
 dub.selections.json
 libapache-thrift.a
 node_modules
