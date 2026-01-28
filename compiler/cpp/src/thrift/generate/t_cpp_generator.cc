@@ -65,6 +65,7 @@ public:
     gen_templates_ = false;
     gen_templates_only_ = false;
     gen_moveable_ = false;
+    gen_forward_setter_ = false;
     gen_no_ostream_operators_ = false;
     gen_no_skeleton_ = false;
     gen_no_constructors_ = false;
@@ -90,6 +91,9 @@ public:
         gen_templates_only_ = (iter->second == "only");
       } else if( iter->first.compare("moveable_types") == 0) {
         gen_moveable_ = true;
+        if (iter->second.compare("forward_setter") == 0) {
+          gen_forward_setter_ = true;
+        }
       } else if ( iter->first.compare("no_ostream_operators") == 0) {
         gen_no_ostream_operators_ = true;
       } else if ( iter->first.compare("no_skeleton") == 0) {
@@ -360,6 +364,11 @@ private:
    * True if we should generate move constructors & assignment operators.
    */
   bool gen_moveable_;
+
+  /**
+   * True if we should generate setters with perfect forwarding for non-primitive types.
+   */
+  bool gen_forward_setter_;
 
   /**
    * True if we should generate ostream definitions
@@ -1392,9 +1401,25 @@ void t_cpp_generator::generate_struct_declaration(ostream& out,
           << type_name((*m_iter)->get_type(), false, false) << ">";
       out << " val);" << '\n';
     } else {
-      out << '\n' << indent() << "void __set_" << (*m_iter)->get_name() << "("
-          << type_name((*m_iter)->get_type(), false, true);
-      out << " val);" << '\n';
+      // Use template for perfect forwarding with forward_setter on complex types
+      if (gen_forward_setter_ && is_complex_type((*m_iter)->get_type())) {
+        out << '\n' << indent() << "template <typename T_>\n";
+        out << indent() << "void __set_" << (*m_iter)->get_name() << "(T_&& val) {" << '\n';
+        indent_up();
+        out << indent() << "this->" << (*m_iter)->get_name() << " = ::std::forward<T_>(val);" << '\n';
+        // assume all fields are required except optional fields.
+        // for optional fields change __isset.name to true
+        bool is_optional = (*m_iter)->get_req() == t_field::T_OPTIONAL;
+        if (is_optional) {
+          out << indent() << "__isset." << (*m_iter)->get_name() << " = true;" << '\n';
+        }
+        indent_down();
+        out << indent() << "}" << '\n';
+      } else {
+        out << '\n' << indent() << "void __set_" << (*m_iter)->get_name() << "("
+            << type_name((*m_iter)->get_type(), false, true);
+        out << " val);" << '\n';
+      }
     }
   }
 
@@ -1559,6 +1584,11 @@ void t_cpp_generator::generate_struct_definition(ostream& out,
   // Create a setter function for each field
   if (setters) {
     for (m_iter = members.begin(); m_iter != members.end(); ++m_iter) {
+      // Skip implementation for forwarding setters (they're inline in header)
+      if (gen_forward_setter_ && !is_reference((*m_iter)) && is_complex_type((*m_iter)->get_type())) {
+        continue;
+      }
+      
       if (is_reference((*m_iter))) {
         out << '\n' << indent() << "void " << tstruct->get_name() << "::__set_"
             << (*m_iter)->get_name() << "(::std::shared_ptr<"
@@ -4988,6 +5018,8 @@ THRIFT_REGISTER_GENERATOR(
     "                     When 'pure_enums=enum_class', generate C++ 11 enum class.\n"
     "    include_prefix:  Use full include paths in generated files.\n"
     "    moveable_types:  Generate move constructors and assignment operators.\n"
+    "                     When 'moveable_types=forward_setter', also generate setters\n"
+    "                     with perfect forwarding for non-primitive types.\n"
     "    no_ostream_operators:\n"
     "                     Omit generation of ostream definitions.\n"
     "    no_skeleton:     Omits generation of skeleton.\n")
