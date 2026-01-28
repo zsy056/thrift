@@ -87,9 +87,12 @@ public:
       } else if( iter->first.compare("no_default_operators") == 0) {
         gen_no_default_operators_ = true;
       } else if( iter->first.compare("templates") == 0) {
-        gen_templates_ = true;
-        gen_templates_only_ = (iter->second == "only");
-        gen_print_ostream_template_ = (iter->second == "print_ostream");
+        if (iter->second == "print_ostream") {
+          gen_print_ostream_template_ = true;
+        } else {
+          gen_templates_ = true;
+          gen_templates_only_ = (iter->second == "only");
+        }
       } else if( iter->first.compare("moveable_types") == 0) {
         gen_moveable_ = true;
       } else if ( iter->first.compare("no_ostream_operators") == 0) {
@@ -1467,7 +1470,7 @@ void t_cpp_generator::generate_struct_declaration(ostream& out,
 
   if (is_user_struct && !has_custom_ostream(tstruct)) {
     out << indent();
-    if (!gen_templates_) out << "virtual ";
+    if (!gen_templates_ && !gen_print_ostream_template_) out << "virtual ";
     generate_struct_print_method_decl(out, nullptr);
     out << ";" << '\n';
   }
