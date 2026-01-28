@@ -1,0 +1,482 @@
+[
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/parse.dir/thrift/thrifty.cc.o -c /home/runner/work/thrift/thrift/build-test/compiler/cpp/thrift/thrifty.cc",
+  "file": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/thrift/thrifty.cc",
+  "output": "compiler/cpp/CMakeFiles/parse.dir/thrift/thrifty.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/parse.dir/thrift/thriftl.cc.o -c /home/runner/work/thrift/thrift/build-test/compiler/cpp/thrift/thriftl.cc",
+  "file": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/thrift/thriftl.cc",
+  "output": "compiler/cpp/CMakeFiles/parse.dir/thrift/thriftl.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/main.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/main.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/main.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/main.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/audit/t_audit.cpp.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/audit/t_audit.cpp",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/audit/t_audit.cpp",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/audit/t_audit.cpp.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_c_glib_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_c_glib_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_c_glib_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_c_glib_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_cl_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_cl_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_cl_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_cl_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_cpp_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_cpp_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_cpp_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_cpp_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_d_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_d_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_d_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_d_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_dart_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_dart_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_dart_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_dart_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_delphi_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_delphi_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_delphi_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_delphi_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_erl_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_erl_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_erl_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_erl_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_go_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_go_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_go_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_go_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_gv_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_gv_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_gv_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_gv_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_haxe_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_haxe_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_haxe_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_haxe_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_html_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_html_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_html_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_html_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_markdown_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_markdown_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_markdown_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_markdown_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_java_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_java_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_java_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_java_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_javame_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_javame_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_javame_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_javame_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_js_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_js_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_js_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_js_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_json_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_json_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_json_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_json_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_kotlin_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_kotlin_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_kotlin_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_kotlin_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_lua_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_lua_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_lua_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_lua_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_netstd_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_netstd_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_netstd_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_netstd_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_ocaml_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_ocaml_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_ocaml_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_ocaml_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_perl_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_perl_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_perl_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_perl_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_php_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_php_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_php_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_php_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_py_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_py_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_py_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_py_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_rb_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_rb_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_rb_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_rb_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_rs_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_rs_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_rs_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_rs_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_st_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_st_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_st_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_st_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_swift_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_swift_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_swift_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_swift_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_xml_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_xml_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_xml_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_xml_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_xsd_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_xsd_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_xsd_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_xsd_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/go_validator_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/go_validator_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/go_validator_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/go_validator_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/common.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/common.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/common.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/common.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_generator.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/t_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/generate/validator_parser.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/validator_parser.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/validator_parser.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/generate/validator_parser.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/parse/t_typedef.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/parse/t_typedef.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/parse/t_typedef.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/parse/t_typedef.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/compiler/cpp/src -g -std=c++11 -o CMakeFiles/thrift-compiler.dir/src/thrift/parse/parse.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/parse/parse.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/parse/parse.cc",
+  "output": "compiler/cpp/CMakeFiles/thrift-compiler.dir/src/thrift/parse/parse.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/thrift_test_globals.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/tests/thrift_test_globals.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/tests/thrift_test_globals.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/thrift_test_globals.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/thrift_test_parser_support.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/tests/thrift_test_parser_support.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/tests/thrift_test_parser_support.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/thrift_test_parser_support.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/logging.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/logging.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/logging.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/logging.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/audit/t_audit.cpp.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/audit/t_audit.cpp",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/audit/t_audit.cpp",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/audit/t_audit.cpp.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/common.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/common.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/common.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/common.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/validator_parser.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/validator_parser.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/validator_parser.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/validator_parser.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/parse/t_typedef.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/parse/t_typedef.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/parse/t_typedef.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/parse/t_typedef.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/parse/parse.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/parse/parse.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/parse/parse.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/parse/parse.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_c_glib_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_c_glib_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_c_glib_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_c_glib_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_cl_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_cl_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_cl_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_cl_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_cpp_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_cpp_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_cpp_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_cpp_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_d_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_d_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_d_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_d_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_dart_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_dart_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_dart_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_dart_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_delphi_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_delphi_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_delphi_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_delphi_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_erl_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_erl_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_erl_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_erl_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_go_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_go_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_go_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_go_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_gv_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_gv_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_gv_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_gv_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_haxe_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_haxe_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_haxe_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_haxe_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_html_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_html_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_html_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_html_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_java_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_java_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_java_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_java_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_javame_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_javame_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_javame_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_javame_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_js_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_js_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_js_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_js_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_json_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_json_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_json_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_json_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_lua_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_lua_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_lua_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_lua_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_netstd_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_netstd_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_netstd_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_netstd_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_perl_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_perl_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_perl_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_perl_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_php_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_php_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_php_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_php_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_py_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_py_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_py_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_py_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_rb_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_rb_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_rb_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_rb_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_rs_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_rs_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_rs_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_rs_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_st_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_st_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_st_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_st_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_swift_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_swift_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_swift_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_swift_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_xml_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_xml_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_xml_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_xml_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_xsd_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_xsd_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/t_xsd_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/t_xsd_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/go_validator_generator.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/go_validator_generator.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/src/thrift/generate/go_validator_generator.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler.dir/__/src/thrift/generate/go_validator_generator.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler_tests.dir/tests_main.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/tests/tests_main.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/tests/tests_main.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler_tests.dir/tests_main.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler_tests.dir/cpp/t_cpp_generator_enum_class_tests.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/tests/cpp/t_cpp_generator_enum_class_tests.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/tests/cpp/t_cpp_generator_enum_class_tests.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler_tests.dir/cpp/t_cpp_generator_enum_class_tests.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler_tests.dir/cpp/t_cpp_generator_private_optional_tests.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/tests/cpp/t_cpp_generator_private_optional_tests.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/tests/cpp/t_cpp_generator_private_optional_tests.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler_tests.dir/cpp/t_cpp_generator_private_optional_tests.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler_tests.dir/ocaml/snapshot_typedefs.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/tests/ocaml/snapshot_typedefs.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/tests/ocaml/snapshot_typedefs.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler_tests.dir/ocaml/snapshot_typedefs.cc.o"
+},
+{
+  "directory": "/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests",
+  "command": "/usr/bin/c++ -DBOOST_ALL_DYN_LINK -DBOOST_TEST_DYN_LINK -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS -I/home/runner/work/thrift/thrift/build-test/compiler/cpp/tests -I/home/runner/work/thrift/thrift/compiler/cpp/tests -I/home/runner/work/thrift/thrift/build-test -I/home/runner/work/thrift/thrift/build-test/compiler/cpp -I/home/runner/work/thrift/thrift/compiler/cpp/src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/../src -I/home/runner/work/thrift/thrift/compiler/cpp/tests/catch -g -std=c++11 -o CMakeFiles/thrift_compiler_tests.dir/ocaml/t_ocaml_generator_tests.cc.o -c /home/runner/work/thrift/thrift/compiler/cpp/tests/ocaml/t_ocaml_generator_tests.cc",
+  "file": "/home/runner/work/thrift/thrift/compiler/cpp/tests/ocaml/t_ocaml_generator_tests.cc",
+  "output": "compiler/cpp/tests/CMakeFiles/thrift_compiler_tests.dir/ocaml/t_ocaml_generator_tests.cc.o"
+}
+]

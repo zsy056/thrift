@@ -95,6 +95,20 @@ target_link_libraries(SpecificNameTest thrift)
 target_link_libraries(SpecificNameTest thriftnb)
 add_test(NAME SpecificNameTest COMMAND SpecificNameTest)
 
+# PrintOstream tests
+set(printostream_SOURCES
+    gen-cpp/PrintOstreamTest_types.cpp
+)
+add_library(printostream STATIC ${printostream_SOURCES})
+target_link_libraries(printostream thrift)
+
+add_executable(PrintOstreamTest src/PrintOstreamTest.cpp)
+target_link_libraries(PrintOstreamTest printostream thrift)
+add_test(NAME PrintOstreamTest COMMAND PrintOstreamTest)
+
+add_executable(PrintOstreamPerformanceTest src/PrintOstreamPerformanceTest.cpp)
+target_link_libraries(PrintOstreamPerformanceTest printostream thrift)
+
 #
 # Common thrift code generation rules
 #
@@ -109,4 +123,8 @@ add_custom_command(OUTPUT gen-cpp/Service.cpp
 
 add_custom_command(OUTPUT gen-cpp/EchoService.cpp gen-cpp/SpecificNameTest_types.cpp
     COMMAND ${THRIFT_COMPILER} --gen cpp ${PROJECT_SOURCE_DIR}/test/SpecificNameTest.thrift
+)
+
+add_custom_command(OUTPUT gen-cpp/PrintOstreamTest_types.cpp gen-cpp/PrintOstreamTest_types.h gen-cpp/PrintOstreamTest_types.tcc
+    COMMAND ${THRIFT_COMPILER} --gen cpp:templates=print_ostream ${PROJECT_SOURCE_DIR}/test/PrintOstreamTest.thrift
 )
