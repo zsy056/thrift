@@ -99,9 +99,12 @@ add_test(NAME SpecificNameTest COMMAND SpecificNameTest)
 set(forwardsettertestgencpp_SOURCES
     gen-cpp-forward/ThriftTest_types.cpp
     gen-cpp-forward/ThriftTest_constants.cpp
-    src/ThriftTest_extras.cpp
 )
 add_library(forwardsettertestgencpp STATIC ${forwardsettertestgencpp_SOURCES})
+target_include_directories(forwardsettertestgencpp PRIVATE 
+    "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-forward"
+    "${PROJECT_SOURCE_DIR}/lib/cpp/src"
+)
 target_link_libraries(forwardsettertestgencpp thrift)
 
 add_executable(ForwardSetterTest src/ForwardSetterTest.cpp)
@@ -114,9 +117,12 @@ add_test(NAME ForwardSetterTest COMMAND ForwardSetterTest)
 set(privateoptonaltestgencpp_SOURCES
     gen-cpp-private/ThriftTest_types.cpp
     gen-cpp-private/ThriftTest_constants.cpp
-    src/ThriftTest_extras.cpp
 )
 add_library(privateoptonaltestgencpp STATIC ${privateoptonaltestgencpp_SOURCES})
+target_include_directories(privateoptonaltestgencpp PRIVATE 
+    "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-private"
+    "${PROJECT_SOURCE_DIR}/lib/cpp/src"
+)
 target_link_libraries(privateoptonaltestgencpp thrift)
 
 add_executable(PrivateOptionalTest src/PrivateOptionalTest.cpp)
@@ -129,9 +135,12 @@ add_test(NAME PrivateOptionalTest COMMAND PrivateOptionalTest)
 set(enumclasstestgencpp_SOURCES
     gen-cpp-enumclass/ThriftTest_types.cpp
     gen-cpp-enumclass/ThriftTest_constants.cpp
-    src/ThriftTest_extras.cpp
 )
 add_library(enumclasstestgencpp STATIC ${enumclasstestgencpp_SOURCES})
+target_include_directories(enumclasstestgencpp PRIVATE 
+    "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-enumclass"
+    "${PROJECT_SOURCE_DIR}/lib/cpp/src"
+)
 target_link_libraries(enumclasstestgencpp thrift)
 
 add_executable(EnumClassTest src/EnumClassTest.cpp)

@@ -55,8 +55,7 @@ nodist_libforwardsettertestgencpp_la_SOURCES = \
 	gen-cpp-forward/ThriftTest_types.h \
 	gen-cpp-forward/ThriftTest_types.tcc \
 	gen-cpp-forward/ThriftTest_constants.cpp \
-	gen-cpp-forward/ThriftTest_constants.h \
-	src/ThriftTest_extras.cpp
+	gen-cpp-forward/ThriftTest_constants.h
 
 libforwardsettertestgencpp_la_LIBADD = $(top_builddir)/lib/cpp/libthrift.la
 
@@ -64,8 +63,7 @@ nodist_libprivateoptonaltestgencpp_la_SOURCES = \
 	gen-cpp-private/ThriftTest_types.cpp \
 	gen-cpp-private/ThriftTest_types.h \
 	gen-cpp-private/ThriftTest_constants.cpp \
-	gen-cpp-private/ThriftTest_constants.h \
-	src/ThriftTest_extras.cpp
+	gen-cpp-private/ThriftTest_constants.h
 
 libprivateoptonaltestgencpp_la_LIBADD = $(top_builddir)/lib/cpp/libthrift.la
 
@@ -73,8 +71,7 @@ nodist_libenumclasstestgencpp_la_SOURCES = \
 	gen-cpp-enumclass/ThriftTest_types.cpp \
 	gen-cpp-enumclass/ThriftTest_types.h \
 	gen-cpp-enumclass/ThriftTest_constants.cpp \
-	gen-cpp-enumclass/ThriftTest_constants.h \
-	src/ThriftTest_extras.cpp
+	gen-cpp-enumclass/ThriftTest_constants.h
 
 libenumclasstestgencpp_la_LIBADD = $(top_builddir)/lib/cpp/libthrift.la
 
