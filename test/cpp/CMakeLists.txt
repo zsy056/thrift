@@ -95,12 +95,33 @@ target_link_libraries(SpecificNameTest thrift)
 target_link_libraries(SpecificNameTest thriftnb)
 add_test(NAME SpecificNameTest COMMAND SpecificNameTest)
 
+# ForwardSetterTest - tests the forward_setter option
+set(forwardsettertestgencpp_SOURCES
+    gen-cpp-forward/ThriftTest_types.cpp
+    gen-cpp-forward/ThriftTest_constants.cpp
+    src/ThriftTest_extras.cpp
+)
+add_library(forwardsettertestgencpp STATIC ${forwardsettertestgencpp_SOURCES})
+target_link_libraries(forwardsettertestgencpp thrift)
+
+add_executable(ForwardSetterTest src/ForwardSetterTest.cpp)
+target_include_directories(ForwardSetterTest PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-forward")
+target_link_libraries(ForwardSetterTest forwardsettertestgencpp ${Boost_LIBRARIES})
+target_link_libraries(ForwardSetterTest thrift)
+add_test(NAME ForwardSetterTest COMMAND ForwardSetterTest)
+
 #
 # Common thrift code generation rules
 #
 
 add_custom_command(OUTPUT gen-cpp/SecondService.cpp gen-cpp/SecondService.h gen-cpp/ThriftTest.cpp gen-cpp/ThriftTest.h gen-cpp/ThriftTest_types.cpp gen-cpp/ThriftTest_constants.cpp
     COMMAND ${THRIFT_COMPILER} --gen cpp:templates,cob_style -r ${PROJECT_SOURCE_DIR}/test/ThriftTest.thrift
+)
+
+# Generate ThriftTest with forward_setter option for ForwardSetterTest
+add_custom_command(OUTPUT gen-cpp-forward/ThriftTest_types.cpp gen-cpp-forward/ThriftTest_types.h gen-cpp-forward/ThriftTest_types.tcc gen-cpp-forward/ThriftTest_constants.cpp
+    COMMAND ${THRIFT_COMPILER} --gen cpp:moveable_types=forward_setter -o gen-cpp-forward ${PROJECT_SOURCE_DIR}/test/ThriftTest.thrift
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
 add_custom_command(OUTPUT gen-cpp/Service.cpp
