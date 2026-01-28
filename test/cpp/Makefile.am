@@ -138,7 +138,7 @@ StressTestNonBlocking_LDADD = \
 ForwardSetterTest_SOURCES = \
 	src/ForwardSetterTest.cpp
 
-ForwardSetterTest_CPPFLAGS = $(AM_CPPFLAGS) -Igen-cpp-forward
+ForwardSetterTest_CPPFLAGS = -Igen-cpp-forward $(AM_CPPFLAGS)
 ForwardSetterTest_LDADD = \
 	libforwardsettertestgencpp.la \
 	$(top_builddir)/lib/cpp/libthrift.la
@@ -146,7 +146,7 @@ ForwardSetterTest_LDADD = \
 PrivateOptionalTest_SOURCES = \
 	src/PrivateOptionalTest.cpp
 
-PrivateOptionalTest_CPPFLAGS = $(AM_CPPFLAGS) -Igen-cpp-private
+PrivateOptionalTest_CPPFLAGS = -Igen-cpp-private $(AM_CPPFLAGS)
 PrivateOptionalTest_LDADD = \
 	libprivateoptonaltestgencpp.la \
 	$(top_builddir)/lib/cpp/libthrift.la
@@ -154,7 +154,7 @@ PrivateOptionalTest_LDADD = \
 EnumClassTest_SOURCES = \
 	src/EnumClassTest.cpp
 
-EnumClassTest_CPPFLAGS = $(AM_CPPFLAGS) -Igen-cpp-enumclass
+EnumClassTest_CPPFLAGS = -Igen-cpp-enumclass $(AM_CPPFLAGS)
 EnumClassTest_LDADD = \
 	libenumclasstestgencpp.la \
 	$(top_builddir)/lib/cpp/libthrift.la
