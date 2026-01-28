@@ -24,6 +24,7 @@
 
 #include <iostream>
 #include <cassert>
+#include <type_traits>
 
 // Include generated thrift types with enum_class option
 #include "ThriftTest_types.h"
@@ -32,6 +33,13 @@ using namespace thrift::test;
 
 int main() {
     std::cout << "Testing pure_enums=enum_class with ThriftTest types..." << std::endl;
+    
+    // Compile-time verification that Numberz is an enum class
+    static_assert(std::is_enum<Numberz>::value, "Numberz should be an enum type");
+    // enum class doesn't implicitly convert to int, which is a key characteristic
+    static_assert(!std::is_convertible<Numberz, int>::value, 
+                  "Numberz should be enum class (not implicitly convertible to int)");
+    std::cout << "  ✓ Compile-time verification: Numberz is enum class" << std::endl;
     
     // Test 1: Verify enum class can be used with scoped names
     {
@@ -79,5 +87,6 @@ int main() {
     }
     
     std::cout << "\n✅ All pure_enums=enum_class tests passed!" << std::endl;
+    std::cout << "   Verified at compile-time: enum class properties enforced" << std::endl;
     return 0;
 }
