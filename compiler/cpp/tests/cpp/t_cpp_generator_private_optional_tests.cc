@@ -108,4 +108,3 @@ TEST_CASE("t_cpp_generator with private_optional generates private optional fiel
     REQUIRE(normalize_for_compare(class_def) == normalize_for_compare(expected_content));
     
 }
-
