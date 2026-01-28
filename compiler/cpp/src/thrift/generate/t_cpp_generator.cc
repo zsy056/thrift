@@ -157,6 +157,7 @@ public:
                                   bool setters = true,
                                   bool is_user_struct = false,
                                   bool pointers = false);
+  void generate_struct_forward_setter_impls(std::ostream& out, t_struct* tstruct);
   void generate_copy_constructor(std::ostream& out, t_struct* tstruct, bool is_exception);
   void generate_move_constructor(std::ostream& out, t_struct* tstruct, bool is_exception);
   void generate_default_constructor(std::ostream& out, t_struct* tstruct, bool is_exception);
@@ -461,7 +462,7 @@ void t_cpp_generator::init_generator() {
   string f_types_impl_name = get_out_dir() + program_name_ + "_types.cpp";
   f_types_impl_.open(f_types_impl_name.c_str());
 
-  if (gen_templates_) {
+  if (gen_templates_ || gen_forward_setter_) {
     // If we don't open the stream, it appears to just discard data,
     // which is fine.
     string f_types_tcc_name = get_out_dir() + program_name_ + "_types.tcc";
@@ -551,7 +552,7 @@ void t_cpp_generator::close_generator() {
   // Include the types.tcc file from the types header file,
   // so clients don't have to explicitly include the tcc file.
   // TODO(simpkins): Make this a separate option.
-  if (gen_templates_) {
+  if (gen_templates_ || gen_forward_setter_) {
     f_types_ << "#include \"" << get_include_prefix(*get_program()) << program_name_
              << "_types.tcc\"" << '\n' << '\n';
   }
@@ -980,6 +981,12 @@ void t_cpp_generator::generate_cpp_struct(t_struct* tstruct, bool is_exception) 
   std::ostream& out = (gen_templates_ ? f_types_tcc_ : f_types_impl_);
   generate_struct_reader(out, tstruct);
   generate_struct_writer(out, tstruct);
+  
+  // Generate forward setter template implementations in .tcc file
+  if (gen_forward_setter_) {
+    generate_struct_forward_setter_impls(f_types_tcc_, tstruct);
+  }
+  
   generate_struct_swap(f_types_impl_, tstruct);
   if (!gen_no_default_operators_) {
     generate_equality_operator(f_types_impl_, tstruct);
@@ -1404,17 +1411,7 @@ void t_cpp_generator::generate_struct_declaration(ostream& out,
       // Use template for perfect forwarding with forward_setter on complex types
       if (gen_forward_setter_ && is_complex_type((*m_iter)->get_type())) {
         out << '\n' << indent() << "template <typename T_>\n";
-        out << indent() << "void __set_" << (*m_iter)->get_name() << "(T_&& val) {" << '\n';
-        indent_up();
-        out << indent() << "this->" << (*m_iter)->get_name() << " = ::std::forward<T_>(val);" << '\n';
-        // assume all fields are required except optional fields.
-        // for optional fields change __isset.name to true
-        bool is_optional = (*m_iter)->get_req() == t_field::T_OPTIONAL;
-        if (is_optional) {
-          out << indent() << "__isset." << (*m_iter)->get_name() << " = true;" << '\n';
-        }
-        indent_down();
-        out << indent() << "}" << '\n';
+        out << indent() << "void __set_" << (*m_iter)->get_name() << "(T_&& val);" << '\n';
       } else {
         out << '\n' << indent() << "void __set_" << (*m_iter)->get_name() << "("
             << type_name((*m_iter)->get_type(), false, true);
@@ -1616,6 +1613,44 @@ void t_cpp_generator::generate_struct_definition(ostream& out,
     generate_struct_ostream_operator(out, tstruct);
   }
   out << '\n';
+}
+
+/**
+ * Generates template setter implementations for forward_setter mode.
+ * These are output to the .tcc file.
+ *
+ * @param out Stream to write to
+ * @param tstruct The struct
+ */
+void t_cpp_generator::generate_struct_forward_setter_impls(ostream& out, t_struct* tstruct) {
+  if (!gen_forward_setter_) {
+    return;
+  }
+
+  const vector<t_field*>& members = tstruct->get_members();
+  vector<t_field*>::const_iterator m_iter;
+
+  for (m_iter = members.begin(); m_iter != members.end(); ++m_iter) {
+    // Only generate implementations for complex types with forward_setter
+    if (is_reference((*m_iter)) || !is_complex_type((*m_iter)->get_type())) {
+      continue;
+    }
+
+    out << '\n' << indent() << "template <typename T_>\n";
+    out << indent() << "void " << tstruct->get_name() << "::__set_"
+        << (*m_iter)->get_name() << "(T_&& val) {" << '\n';
+    indent_up();
+    out << indent() << "this->" << (*m_iter)->get_name() << " = ::std::forward<T_>(val);" << '\n';
+    
+    // assume all fields are required except optional fields.
+    // for optional fields change __isset.name to true
+    bool is_optional = (*m_iter)->get_req() == t_field::T_OPTIONAL;
+    if (is_optional) {
+      out << indent() << "__isset." << (*m_iter)->get_name() << " = true;" << '\n';
+    }
+    indent_down();
+    out << indent() << "}" << '\n';
+  }
 }
 
 /**

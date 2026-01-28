@@ -163,7 +163,7 @@ TEST_CASE("t_cpp_generator with moveable_types=forward_setter generates forwardi
     // Generate code
     REQUIRE_NOTHROW(gen->generate_program());
 
-    // Read generated output
+    // Read generated header
     string generated_file = "gen-cpp/test_forward_setter_types.h";
     string generated_content = read_file(generated_file);
     REQUIRE(!generated_content.empty());
@@ -176,13 +176,25 @@ TEST_CASE("t_cpp_generator with moveable_types=forward_setter generates forwardi
     REQUIRE(class_def.find("TestForwardSetter(TestForwardSetter&&)") != string::npos);
     REQUIRE(class_def.find("TestForwardSetter& operator=(TestForwardSetter&&)") != string::npos);
     
-    // Verify setters for complex types use templates with perfect forwarding
+    // Verify setters for complex types use templates with perfect forwarding (declarations in header)
     REQUIRE(class_def.find("template <typename T_>") != string::npos);
-    REQUIRE(class_def.find("void __set_complex_string(T_&& val)") != string::npos);
-    REQUIRE(class_def.find("::std::forward<T_>(val)") != string::npos);
+    REQUIRE(class_def.find("void __set_complex_string(T_&& val);") != string::npos);
     
     // Verify primitive setters are NOT templated
     REQUIRE(class_def.find("void __set_primitive_field(const int32_t val);") != string::npos);
     REQUIRE(class_def.find("void __set_primitive_bool(const bool val);") != string::npos);
+    
+    // Verify header includes .tcc file
+    REQUIRE(generated_content.find("#include \"test_forward_setter_types.tcc\"") != string::npos);
+    
+    // Read generated .tcc file and verify implementations
+    string tcc_file = "gen-cpp/test_forward_setter_types.tcc";
+    string tcc_content = read_file(tcc_file);
+    REQUIRE(!tcc_content.empty());
+    
+    // Verify template implementations are in .tcc file
+    REQUIRE(tcc_content.find("::std::forward<T_>(val)") != string::npos);
+    REQUIRE(tcc_content.find("void TestForwardSetter::__set_complex_string(T_&& val)") != string::npos);
+    REQUIRE(tcc_content.find("void TestForwardSetter::__set_complex_struct(T_&& val)") != string::npos);
 }
 
