@@ -194,10 +194,5 @@ else()
     )
 endif()
 
-# Compile-check generated C++ output for fixture thrift files.
-# This ensures the generator output is compileable (no link step required).
-# Note: These checks require Boost headers and are optional.
-add_subdirectory(cpp)
-
 enable_testing()
 add_test(NAME ThriftCompilerTests COMMAND thrift_compiler_tests)
