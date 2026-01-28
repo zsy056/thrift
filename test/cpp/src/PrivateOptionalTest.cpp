@@ -39,9 +39,19 @@ struct has_public_string_thing : std::false_type {};
 template<typename T>
 struct has_public_string_thing<T, decltype(void(std::declval<T>().string_thing))> : std::true_type {};
 
-// For testing private_optional: In ThriftTest, string fields in Xtruct are not optional,
-// so they should remain public. However, we can create a compile-time test structure.
-// Note: ThriftTest doesn't have optional string fields in Xtruct, so we verify the pattern works.
+// SFINAE test to check if optional field 'aa' is directly accessible
+template<typename T, typename = void>
+struct has_public_aa : std::false_type {};
+
+template<typename T>
+struct has_public_aa<T, decltype(void(std::declval<T>().aa))> : std::true_type {};
+
+// SFINAE test to check if required field 'ab' is directly accessible
+template<typename T, typename = void>
+struct has_public_ab : std::false_type {};
+
+template<typename T>
+struct has_public_ab<T, decltype(void(std::declval<T>().ab))> : std::true_type {};
 
 int main() {
     std::cout << "Testing private_optional with ThriftTest types..." << std::endl;
@@ -49,7 +59,17 @@ int main() {
     // Compile-time verification: required fields should still be publicly accessible
     static_assert(has_public_string_thing<Xtruct>::value,
                   "Required fields (like string_thing in Xtruct) should remain public");
-    std::cout << "  ✓ Compile-time verification: Required fields are public" << std::endl;
+    std::cout << "  ✓ Compile-time verification: Required fields are public (Xtruct)" << std::endl;
+    
+    // Compile-time verification for StructB: optional field 'aa' should be private
+    static_assert(!has_public_aa<StructB>::value,
+                  "Optional field 'aa' in StructB should be private with private_optional");
+    std::cout << "  ✓ Compile-time verification: Optional field 'aa' is private (StructB)" << std::endl;
+    
+    // Compile-time verification for StructB: required field 'ab' should be public
+    static_assert(has_public_ab<StructB>::value,
+                  "Required field 'ab' in StructB should remain public");
+    std::cout << "  ✓ Compile-time verification: Required field 'ab' is public (StructB)" << std::endl;
     
     // Test 1: Verify getters work for accessing fields
     {
@@ -93,7 +113,25 @@ int main() {
         std::cout << "  ✓ Direct access to required fields works" << std::endl;
     }
     
+    // Test 5: Test StructB with optional and required fields
+    {
+        StructB sb;
+        StructA sa;
+        sa.__set_s("test struct");
+        
+        // Set optional field 'aa' using setter (cannot access directly)
+        sb.__set_aa(sa);
+        
+        // Set and access required field 'ab' directly (it's public)
+        sb.ab = sa;
+        
+        // Verify using getters
+        assert(sb.__get_aa().__get_s() == "test struct");
+        assert(sb.ab.__get_s() == "test struct");
+        std::cout << "  ✓ StructB: Optional field private, required field public" << std::endl;
+    }
+    
     std::cout << "\n✅ All private_optional tests passed!" << std::endl;
-    std::cout << "   Verified at compile-time: Required fields remain publicly accessible" << std::endl;
+    std::cout << "   Verified at compile-time: Optional fields are private, required fields public" << std::endl;
     return 0;
 }
