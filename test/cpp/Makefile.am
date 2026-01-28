@@ -164,14 +164,17 @@ gen-cpp/ThriftTest.cpp gen-cpp/ThriftTest_types.cpp gen-cpp/ThriftTest_constants
 
 # Generate ThriftTest with forward_setter option
 gen-cpp-forward/ThriftTest_types.cpp gen-cpp-forward/ThriftTest_types.h gen-cpp-forward/ThriftTest_types.tcc gen-cpp-forward/ThriftTest_constants.cpp: $(top_srcdir)/test/ThriftTest.thrift $(THRIFT)
+	$(MKDIR_P) gen-cpp-forward
 	$(THRIFT) --gen cpp:moveable_types=forward_setter -o gen-cpp-forward $<
 
 # Generate ThriftTest with private_optional option
 gen-cpp-private/ThriftTest_types.cpp gen-cpp-private/ThriftTest_types.h gen-cpp-private/ThriftTest_constants.cpp: $(top_srcdir)/test/ThriftTest.thrift $(THRIFT)
+	$(MKDIR_P) gen-cpp-private
 	$(THRIFT) --gen cpp:private_optional -o gen-cpp-private $<
 
 # Generate ThriftTest with enum_class option
 gen-cpp-enumclass/ThriftTest_types.cpp gen-cpp-enumclass/ThriftTest_types.h gen-cpp-enumclass/ThriftTest_constants.cpp: $(top_srcdir)/test/ThriftTest.thrift $(THRIFT)
+	$(MKDIR_P) gen-cpp-enumclass
 	$(THRIFT) --gen cpp:pure_enums=enum_class -o gen-cpp-enumclass $<
 
 gen-cpp/Service.cpp: $(top_srcdir)/test/StressTest.thrift $(THRIFT)
