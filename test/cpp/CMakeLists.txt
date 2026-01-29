@@ -110,7 +110,10 @@ target_include_directories(forwardsettertestgencpp PRIVATE
 target_link_libraries(forwardsettertestgencpp thrift)
 
 add_executable(ForwardSetterTest src/ForwardSetterTest.cpp)
-target_include_directories(ForwardSetterTest PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-forward")
+target_include_directories(ForwardSetterTest PRIVATE 
+    "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-forward/gen-cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-forward"
+)
 target_link_libraries(ForwardSetterTest forwardsettertestgencpp ${Boost_LIBRARIES})
 target_link_libraries(ForwardSetterTest thrift)
 add_test(NAME ForwardSetterTest COMMAND ForwardSetterTest)
@@ -130,7 +133,10 @@ target_include_directories(privateoptonaltestgencpp PRIVATE
 target_link_libraries(privateoptonaltestgencpp thrift)
 
 add_executable(PrivateOptionalTest src/PrivateOptionalTest.cpp)
-target_include_directories(PrivateOptionalTest PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-private")
+target_include_directories(PrivateOptionalTest PRIVATE 
+    "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-private/gen-cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-private"
+)
 target_link_libraries(PrivateOptionalTest privateoptonaltestgencpp ${Boost_LIBRARIES})
 target_link_libraries(PrivateOptionalTest thrift)
 add_test(NAME PrivateOptionalTest COMMAND PrivateOptionalTest)
@@ -150,7 +156,10 @@ target_include_directories(enumclasstestgencpp PRIVATE
 target_link_libraries(enumclasstestgencpp thrift)
 
 add_executable(EnumClassTest src/EnumClassTest.cpp)
-target_include_directories(EnumClassTest PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-enumclass")
+target_include_directories(EnumClassTest PRIVATE 
+    "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-enumclass/gen-cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-enumclass"
+)
 target_link_libraries(EnumClassTest enumclasstestgencpp ${Boost_LIBRARIES})
 target_link_libraries(EnumClassTest thrift)
 add_test(NAME EnumClassTest COMMAND EnumClassTest)
