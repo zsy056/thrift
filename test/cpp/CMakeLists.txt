@@ -102,8 +102,16 @@ set(forwardsettertestgencpp_SOURCES
     src/ThriftTest_extras.cpp
 )
 add_library(forwardsettertestgencpp STATIC ${forwardsettertestgencpp_SOURCES})
+# Create a gen-cpp subdirectory in gen-cpp-forward to make #include "gen-cpp/..." work
+add_custom_command(TARGET forwardsettertestgencpp PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-forward/gen-cpp"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+        "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-forward/ThriftTest_types.h"
+        "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-forward/gen-cpp/ThriftTest_types.h"
+)
 target_include_directories(forwardsettertestgencpp PRIVATE 
     "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-forward"
+    "${CMAKE_CURRENT_BINARY_DIR}"
     "${PROJECT_SOURCE_DIR}/lib/cpp/src"
 )
 target_link_libraries(forwardsettertestgencpp thrift)
@@ -121,8 +129,16 @@ set(privateoptonaltestgencpp_SOURCES
     src/ThriftTest_extras.cpp
 )
 add_library(privateoptonaltestgencpp STATIC ${privateoptonaltestgencpp_SOURCES})
+# Create a gen-cpp subdirectory in gen-cpp-private to make #include "gen-cpp/..." work
+add_custom_command(TARGET privateoptonaltestgencpp PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-private/gen-cpp"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+        "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-private/ThriftTest_types.h"
+        "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-private/gen-cpp/ThriftTest_types.h"
+)
 target_include_directories(privateoptonaltestgencpp PRIVATE 
     "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-private"
+    "${CMAKE_CURRENT_BINARY_DIR}"
     "${PROJECT_SOURCE_DIR}/lib/cpp/src"
 )
 target_link_libraries(privateoptonaltestgencpp thrift)
@@ -140,8 +156,16 @@ set(enumclasstestgencpp_SOURCES
     src/ThriftTest_extras.cpp
 )
 add_library(enumclasstestgencpp STATIC ${enumclasstestgencpp_SOURCES})
+# Create a gen-cpp subdirectory in gen-cpp-enumclass to make #include "gen-cpp/..." work
+add_custom_command(TARGET enumclasstestgencpp PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-enumclass/gen-cpp"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+        "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-enumclass/ThriftTest_types.h"
+        "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-enumclass/gen-cpp/ThriftTest_types.h"
+)
 target_include_directories(enumclasstestgencpp PRIVATE 
     "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-enumclass"
+    "${CMAKE_CURRENT_BINARY_DIR}"
     "${PROJECT_SOURCE_DIR}/lib/cpp/src"
 )
 target_link_libraries(enumclasstestgencpp thrift)
