@@ -1489,7 +1489,8 @@ void t_cpp_generator::generate_struct_declaration(ostream& out,
 
   if (is_user_struct && !has_custom_ostream(tstruct)) {
     out << indent();
-    if (!gen_templates_) out << "virtual ";
+    // Template methods cannot be virtual, so skip virtual keyword when using template_streamop
+    if (!gen_templates_ && !gen_template_streamop_) out << "virtual ";
     generate_struct_print_method_decl(out, nullptr);
     out << ";" << '\n';
   }
