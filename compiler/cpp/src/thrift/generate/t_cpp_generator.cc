@@ -1541,8 +1541,17 @@ void t_cpp_generator::generate_struct_declaration(ostream& out,
   // When private_optional is enabled, optional members may be private.
   // The generated namespace-scope operator<< needs friend access.
   if (is_user_struct && gen_private_optional_) {
-    indent(out) << "friend ";
-    generate_struct_ostream_operator_decl(out, tstruct);
+    if (gen_template_streamop_) {
+      // For template version, friend must come after template keyword
+      out << indent() << "template <typename OStream_>" << '\n';
+      out << indent() << "friend OStream_& operator<<(OStream_& out, const "
+          << tstruct->get_name()
+          << "& obj);" << '\n';
+      out << '\n';
+    } else {
+      indent(out) << "friend ";
+      generate_struct_ostream_operator_decl(out, tstruct);
+    }
   }
 
   indent_down();

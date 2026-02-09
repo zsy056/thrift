@@ -124,3 +124,41 @@ TEST_CASE("t_cpp_generator with template_streamop generates templated operator<<
     // Verify both SimpleStruct and NestedStruct have template versions
     REQUIRE(impl_content.find("void NestedStruct::printTo(OStream_& out) const") != string::npos);
 }
+
+TEST_CASE("t_cpp_generator with template_streamop and private_optional generates correct friend declarations", "[functional]")
+{
+    string path = join_path(source_dir(), "test_template_streamop.thrift");
+    string name = "test_template_streamop";
+    map<string, string> parsed_options = {{"template_streamop", ""}, {"private_optional", ""}};
+    string option_string = "";
+
+    std::unique_ptr<t_program> program(new t_program(path, name));
+    parse_thrift_for_test(program.get());
+    
+    std::unique_ptr<t_generator> gen(
+        t_generator_registry::get_generator(program.get(), "cpp", parsed_options, option_string));
+    REQUIRE(gen != nullptr);
+    
+    // Generate code
+    REQUIRE_NOTHROW(gen->generate_program());
+
+    // Read generated header
+    string generated_file = "gen-cpp/test_template_streamop_types.h";
+    string generated_content = read_file(generated_file);
+    REQUIRE(!generated_content.empty());
+
+    // Extract class definition
+    string class_def = extract_class_definition(generated_content, "SimpleStruct");
+    REQUIRE(!class_def.empty());
+    
+    // Verify friend declaration comes after template keyword (correct C++ syntax)
+    // Should be: template <typename OStream_>
+    //            friend OStream_& operator<<(...)
+    // NOT: friend template <typename OStream_> ...
+    REQUIRE(class_def.find("template <typename OStream_>") != string::npos);
+    REQUIRE(class_def.find("friend OStream_& operator<<(OStream_& out, const SimpleStruct& obj);") != string::npos);
+    
+    // Verify incorrect syntax is not present
+    REQUIRE(class_def.find("friend template <typename OStream_>") == string::npos);
+}
+
