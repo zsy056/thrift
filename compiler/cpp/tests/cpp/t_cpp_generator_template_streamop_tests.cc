@@ -111,8 +111,8 @@ TEST_CASE("t_cpp_generator with template_streamop generates templated operator<<
     // Verify no hardcoded std::ostream in printTo declaration
     REQUIRE(class_def.find("void printTo(std::ostream& out) const;") == string::npos);
     
-    // Read implementation file
-    string impl_file = "gen-cpp/test_template_streamop_types.cpp";
+    // Read implementation file (.tcc for templates)
+    string impl_file = "gen-cpp/test_template_streamop_types.tcc";
     string impl_content = read_file(impl_file);
     REQUIRE(!impl_content.empty());
     

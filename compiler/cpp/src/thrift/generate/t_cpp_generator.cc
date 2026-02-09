@@ -470,7 +470,7 @@ void t_cpp_generator::init_generator() {
   string f_types_impl_name = get_out_dir() + program_name_ + "_types.cpp";
   f_types_impl_.open(f_types_impl_name.c_str());
 
-  if (gen_templates_ || gen_forward_setter_) {
+  if (gen_templates_ || gen_forward_setter_ || gen_template_streamop_) {
     // If we don't open the stream, it appears to just discard data,
     // which is fine.
     string f_types_tcc_name = get_out_dir() + program_name_ + "_types.tcc";
@@ -560,7 +560,7 @@ void t_cpp_generator::close_generator() {
   // Include the types.tcc file from the types header file,
   // so clients don't have to explicitly include the tcc file.
   // TODO(simpkins): Make this a separate option.
-  if (gen_templates_ || gen_forward_setter_) {
+  if (gen_templates_ || gen_forward_setter_ || gen_template_streamop_) {
     f_types_ << "#include \"" << get_include_prefix(*get_program()) << program_name_
              << "_types.tcc\"" << '\n' << '\n';
   }
@@ -984,7 +984,10 @@ void t_cpp_generator::generate_forward_declaration(t_struct* tstruct) {
  */
 void t_cpp_generator::generate_cpp_struct(t_struct* tstruct, bool is_exception) {
   generate_struct_declaration(f_types_, tstruct, is_exception, false, true, true, true, true);
-  generate_struct_definition(f_types_impl_, f_types_impl_, tstruct, true, true, false);
+  
+  // Decide which stream to use for struct definition based on whether templates are used
+  std::ostream& struct_impl_out = (gen_template_streamop_ ? f_types_tcc_ : f_types_impl_);
+  generate_struct_definition(struct_impl_out, f_types_impl_, tstruct, true, true, false);
 
   std::ostream& out = (gen_templates_ ? f_types_tcc_ : f_types_impl_);
   generate_struct_reader(out, tstruct);
@@ -1011,7 +1014,9 @@ void t_cpp_generator::generate_cpp_struct(t_struct* tstruct, bool is_exception) 
   }
 
   if (!has_custom_ostream(tstruct)) {
-    generate_struct_print_method(f_types_impl_, tstruct);
+    // When template_streamop is enabled, printTo implementation goes to .tcc file
+    std::ostream& print_method_out = (gen_template_streamop_ ? f_types_tcc_ : f_types_impl_);
+    generate_struct_print_method(print_method_out, tstruct);
   }
 
   if (is_exception) {
