@@ -454,3 +454,9 @@ compiler/cpp/tests/bin/
 compiler/cpp/tests/*.a
 compiler/cpp/tests/build/
 compiler/cpp/build/
+
+# CodeQL
+_codeql_detected_source_root
+
+# Kotlin build artifacts
+*.kotlin/sessions/
