@@ -26,6 +26,7 @@ using cpp_generator_test_utils::normalize_for_compare;
 using cpp_generator_test_utils::parse_thrift_for_test;
 
 // Helper function declared in t_cpp_generator_private_optional_tests.cc
+// Extracts the class definition from generated content for the given class name
 extern string extract_class_definition(const string& content, const string& class_name);
 
 TEST_CASE("t_cpp_generator without template_streamop generates standard operator<< and printTo", "[functional]")
