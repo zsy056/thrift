@@ -66,6 +66,7 @@ public:
     gen_templates_only_ = false;
     gen_moveable_ = false;
     gen_forward_setter_ = false;
+    gen_template_streamop_ = false;
     gen_no_ostream_operators_ = false;
     gen_no_skeleton_ = false;
     gen_no_constructors_ = false;
@@ -96,6 +97,8 @@ public:
         }
       } else if ( iter->first.compare("no_ostream_operators") == 0) {
         gen_no_ostream_operators_ = true;
+      } else if ( iter->first.compare("template_streamop") == 0) {
+        gen_template_streamop_ = true;
       } else if ( iter->first.compare("no_skeleton") == 0) {
         gen_no_skeleton_ = true;
       } else if ( iter->first.compare("no_constructors") == 0) {
@@ -370,6 +373,11 @@ private:
    * True if we should generate setters with perfect forwarding for non-primitive types.
    */
   bool gen_forward_setter_;
+
+  /**
+   * True if we should generate operator<< and printTo with generic stream type template.
+   */
+  bool gen_template_streamop_;
 
   /**
    * True if we should generate ostream definitions
@@ -1979,18 +1987,32 @@ void t_cpp_generator::generate_struct_swap_decl(std::ostream& out, t_struct* tst
 }
 
 void t_cpp_generator::generate_struct_ostream_operator_decl(std::ostream& out, t_struct* tstruct) {
-  out << "std::ostream& operator<<(std::ostream& out, const "
-      << tstruct->get_name()
-      << "& obj);" << '\n';
+  if (gen_template_streamop_) {
+    out << "template <typename OStream_>" << '\n';
+    out << "OStream_& operator<<(OStream_& out, const "
+        << tstruct->get_name()
+        << "& obj);" << '\n';
+  } else {
+    out << "std::ostream& operator<<(std::ostream& out, const "
+        << tstruct->get_name()
+        << "& obj);" << '\n';
+  }
   out << '\n';
 }
 
 void t_cpp_generator::generate_struct_ostream_operator(std::ostream& out, t_struct* tstruct) {
   if (!has_custom_ostream(tstruct)) {
     // thrift defines this behavior
-    out << "std::ostream& operator<<(std::ostream& out, const "
-        << tstruct->get_name()
-        << "& obj)" << '\n';
+    if (gen_template_streamop_) {
+      out << "template <typename OStream_>" << '\n';
+      out << "OStream_& operator<<(OStream_& out, const "
+          << tstruct->get_name()
+          << "& obj)" << '\n';
+    } else {
+      out << "std::ostream& operator<<(std::ostream& out, const "
+          << tstruct->get_name()
+          << "& obj)" << '\n';
+    }
     scope_up(out);
     out << indent() << "obj.printTo(out);" << '\n'
         << indent() << "return out;" << '\n';
@@ -2000,11 +2022,24 @@ void t_cpp_generator::generate_struct_ostream_operator(std::ostream& out, t_stru
 }
 
 void t_cpp_generator::generate_struct_print_method_decl(std::ostream& out, t_struct* tstruct) {
-  out << "void ";
-  if (tstruct) {
-    out << tstruct->get_name() << "::";
+  if (gen_template_streamop_) {
+    // For template version, the method itself is templated
+    if (!tstruct) {
+      // Declaration inside class - no "template" keyword here, will be added by caller if needed
+      out << "template <typename OStream_>" << '\n' << indent() << "void ";
+    } else {
+      // External implementation - needs template keyword
+      out << "template <typename OStream_>" << '\n' << indent() << "void ";
+      out << tstruct->get_name() << "::";
+    }
+    out << "printTo(OStream_& out) const";
+  } else {
+    out << "void ";
+    if (tstruct) {
+      out << tstruct->get_name() << "::";
+    }
+    out << "printTo(std::ostream& out) const";
   }
-  out << "printTo(std::ostream& out) const";
 }
 
 void t_cpp_generator::generate_exception_what_method_decl(std::ostream& out,
