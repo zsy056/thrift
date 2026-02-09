@@ -184,20 +184,22 @@ int main() {
         
         // Test std::ostringstream performance
         auto start_oss = std::chrono::high_resolution_clock::now();
+        std::string accumulated_result;  // Prevent optimization by accumulating results
         for (int i = 0; i < iterations; ++i) {
             std::ostringstream oss;
             oss << x;
-            volatile std::string result = oss.str();  // prevent optimization
+            accumulated_result += oss.str();  // Use result to prevent optimization
         }
         auto end_oss = std::chrono::high_resolution_clock::now();
         auto duration_oss = std::chrono::duration_cast<std::chrono::microseconds>(end_oss - start_oss).count();
         
         // Test MinimalStream performance
         auto start_ms = std::chrono::high_resolution_clock::now();
+        accumulated_result.clear();  // Reuse for MinimalStream test
         for (int i = 0; i < iterations; ++i) {
             MinimalStream ms;
             ms << x;
-            volatile std::string result = ms.str();  // prevent optimization
+            accumulated_result += ms.str();  // Use result to prevent optimization
         }
         auto end_ms = std::chrono::high_resolution_clock::now();
         auto duration_ms = std::chrono::duration_cast<std::chrono::microseconds>(end_ms - start_ms).count();
