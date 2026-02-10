@@ -1,6 +1,0 @@
-ThriftCompilerTests 3 0.00228078
-ForwardSetterTest 2 0.000823541
-PrivateOptionalTest 2 0.000728394
-EnumClassTest 2 0.000670441
-TemplateStreamOpTest 1 0.0113348
----

@@ -460,3 +460,4 @@ _codeql_detected_source_root
 
 # Kotlin build artifacts
 *.kotlin/sessions/
+build_full/
