@@ -984,10 +984,7 @@ void t_cpp_generator::generate_forward_declaration(t_struct* tstruct) {
  */
 void t_cpp_generator::generate_cpp_struct(t_struct* tstruct, bool is_exception) {
   generate_struct_declaration(f_types_, tstruct, is_exception, false, true, true, true, true);
-  
-  // Decide which stream to use for struct definition based on whether templates are used
-  std::ostream& struct_impl_out = (gen_template_streamop_ ? f_types_tcc_ : f_types_impl_);
-  generate_struct_definition(struct_impl_out, f_types_impl_, tstruct, true, true, false);
+  generate_struct_definition(f_types_impl_, f_types_impl_, tstruct, true, true, false);
 
   std::ostream& out = (gen_templates_ ? f_types_tcc_ : f_types_impl_);
   generate_struct_reader(out, tstruct);
@@ -1626,7 +1623,9 @@ void t_cpp_generator::generate_struct_definition(ostream& out,
     }
   }
   if (is_user_struct) {
-    generate_struct_ostream_operator(out, tstruct);
+    // When template_streamop is enabled, operator<< implementation goes to .tcc file
+    std::ostream& ostream_op_out = (gen_template_streamop_ ? f_types_tcc_ : out);
+    generate_struct_ostream_operator(ostream_op_out, tstruct);
   }
   out << '\n';
 }
