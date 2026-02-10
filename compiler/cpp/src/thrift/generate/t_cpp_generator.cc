@@ -2070,65 +2070,35 @@ void t_cpp_generator::generate_exception_what_method_decl(std::ostream& out,
 }
 
 namespace struct_ostream_operator_generator {
-
-// Helper to check if a type needs to_string even in template mode
-bool needs_to_string(const t_field* field) {
-  const t_type* type = field->get_type()->get_true_type();
-  // Only containers, structs, and xceptions need to_string
-  // Strings and UUIDs can be directly streamed
-  return type->is_container() 
-         || type->is_struct() 
-         || type->is_xception();
+void generate_required_field_value(std::ostream& out, const t_field* field) {
+  out << " << to_string(" << field->get_name() << ")";
 }
 
-void generate_required_field_value(std::ostream& out, const t_field* field, bool use_to_string) {
-  if (use_to_string || needs_to_string(field)) {
-    // Use apache::thrift::to_string for complex types or when in std::ostream mode
-    // Use full qualification to avoid ambiguity with std::to_string
-    out << " << ::apache::thrift::to_string(" << field->get_name() << ")";
-  } else {
-    // For generic stream templates with primitive types, output directly
-    // Special handling for int8_t to avoid printing as char
-    const t_type* type = field->get_type()->get_true_type();
-    if (type->is_base_type()) {
-      const t_base_type* base_type = (const t_base_type*)type;
-      if (base_type->get_base() == t_base_type::TYPE_I8) {
-        out << " << static_cast<int>(" << field->get_name() << ")";
-      } else {
-        out << " << " << field->get_name();
-      }
-    } else {
-      out << " << " << field->get_name();
-    }
-  }
-}
-
-void generate_optional_field_value(std::ostream& out, const t_field* field, bool use_to_string) {
+void generate_optional_field_value(std::ostream& out, const t_field* field) {
   out << "; (__isset." << field->get_name() << " ? (out";
-  generate_required_field_value(out, field, use_to_string);
+  generate_required_field_value(out, field);
   out << ") : (out << \"<null>\"))";
 }
 
-void generate_field_value(std::ostream& out, const t_field* field, bool use_to_string) {
+void generate_field_value(std::ostream& out, const t_field* field) {
   if (field->get_req() == t_field::T_OPTIONAL)
-    generate_optional_field_value(out, field, use_to_string);
+    generate_optional_field_value(out, field);
   else
-    generate_required_field_value(out, field, use_to_string);
+    generate_required_field_value(out, field);
 }
 
 void generate_field_name(std::ostream& out, const t_field* field) {
   out << "\"" << field->get_name() << "=\"";
 }
 
-void generate_field(std::ostream& out, const t_field* field, bool use_to_string) {
+void generate_field(std::ostream& out, const t_field* field) {
   generate_field_name(out, field);
-  generate_field_value(out, field, use_to_string);
+  generate_field_value(out, field);
 }
 
 void generate_fields(std::ostream& out,
                      const vector<t_field*>& fields,
-                     const std::string& indent,
-                     bool use_to_string) {
+                     const std::string& indent) {
   const vector<t_field*>::const_iterator beg = fields.begin();
   const vector<t_field*>::const_iterator end = fields.end();
 
@@ -2139,7 +2109,7 @@ void generate_fields(std::ostream& out,
       out << "\", \" << ";
     }
 
-    generate_field(out, *it, use_to_string);
+    generate_field(out, *it);
     out << ";" << '\n';
   }
 }
@@ -2155,13 +2125,9 @@ void t_cpp_generator::generate_struct_print_method(std::ostream& out, t_struct* 
 
   indent_up();
 
-  // Always use to_string for complex types (containers, structs, strings)
-  // even when using template_streamop
   out << indent() << "using ::apache::thrift::to_string;" << '\n';
   out << indent() << "out << \"" << tstruct->get_name() << "(\";" << '\n';
-  
-  bool use_to_string = !gen_template_streamop_;
-  struct_ostream_operator_generator::generate_fields(out, tstruct->get_members(), indent(), use_to_string);
+  struct_ostream_operator_generator::generate_fields(out, tstruct->get_members(), indent());
   out << indent() << "out << \")\";" << '\n';
 
   indent_down();
