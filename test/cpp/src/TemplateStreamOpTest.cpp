@@ -109,6 +109,8 @@ int main() {
         oss << x;
         std::string result = oss.str();
         
+        std::cout << "  Generated output: " << result << std::endl;
+        
         assert(!result.empty());
         assert(result.find("test string") != std::string::npos);
         assert(result.find("42") != std::string::npos);

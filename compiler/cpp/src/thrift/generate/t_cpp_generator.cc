@@ -2065,35 +2065,52 @@ void t_cpp_generator::generate_exception_what_method_decl(std::ostream& out,
 }
 
 namespace struct_ostream_operator_generator {
-void generate_required_field_value(std::ostream& out, const t_field* field) {
-  out << " << to_string(" << field->get_name() << ")";
+void generate_required_field_value(std::ostream& out, const t_field* field, bool use_to_string) {
+  if (use_to_string) {
+    out << " << to_string(" << field->get_name() << ")";
+  } else {
+    // For generic stream templates, output directly without to_string
+    // Special handling for int8_t to avoid printing as char
+    const t_type* type = field->get_type()->get_true_type();
+    if (type->is_base_type()) {
+      const t_base_type* base_type = (const t_base_type*)type;
+      if (base_type->get_base() == t_base_type::TYPE_I8) {
+        out << " << static_cast<int>(" << field->get_name() << ")";
+      } else {
+        out << " << " << field->get_name();
+      }
+    } else {
+      out << " << " << field->get_name();
+    }
+  }
 }
 
-void generate_optional_field_value(std::ostream& out, const t_field* field) {
+void generate_optional_field_value(std::ostream& out, const t_field* field, bool use_to_string) {
   out << "; (__isset." << field->get_name() << " ? (out";
-  generate_required_field_value(out, field);
+  generate_required_field_value(out, field, use_to_string);
   out << ") : (out << \"<null>\"))";
 }
 
-void generate_field_value(std::ostream& out, const t_field* field) {
+void generate_field_value(std::ostream& out, const t_field* field, bool use_to_string) {
   if (field->get_req() == t_field::T_OPTIONAL)
-    generate_optional_field_value(out, field);
+    generate_optional_field_value(out, field, use_to_string);
   else
-    generate_required_field_value(out, field);
+    generate_required_field_value(out, field, use_to_string);
 }
 
 void generate_field_name(std::ostream& out, const t_field* field) {
   out << "\"" << field->get_name() << "=\"";
 }
 
-void generate_field(std::ostream& out, const t_field* field) {
+void generate_field(std::ostream& out, const t_field* field, bool use_to_string) {
   generate_field_name(out, field);
-  generate_field_value(out, field);
+  generate_field_value(out, field, use_to_string);
 }
 
 void generate_fields(std::ostream& out,
                      const vector<t_field*>& fields,
-                     const std::string& indent) {
+                     const std::string& indent,
+                     bool use_to_string) {
   const vector<t_field*>::const_iterator beg = fields.begin();
   const vector<t_field*>::const_iterator end = fields.end();
 
@@ -2104,7 +2121,7 @@ void generate_fields(std::ostream& out,
       out << "\", \" << ";
     }
 
-    generate_field(out, *it);
+    generate_field(out, *it, use_to_string);
     out << ";" << '\n';
   }
 }
@@ -2120,9 +2137,13 @@ void t_cpp_generator::generate_struct_print_method(std::ostream& out, t_struct* 
 
   indent_up();
 
-  out << indent() << "using ::apache::thrift::to_string;" << '\n';
+  bool use_to_string = !gen_template_streamop_;
+  if (use_to_string) {
+    // For std::ostream, we can use apache::thrift::to_string
+    out << indent() << "using ::apache::thrift::to_string;" << '\n';
+  }
   out << indent() << "out << \"" << tstruct->get_name() << "(\";" << '\n';
-  struct_ostream_operator_generator::generate_fields(out, tstruct->get_members(), indent());
+  struct_ostream_operator_generator::generate_fields(out, tstruct->get_members(), indent(), use_to_string);
   out << indent() << "out << \")\";" << '\n';
 
   indent_down();
