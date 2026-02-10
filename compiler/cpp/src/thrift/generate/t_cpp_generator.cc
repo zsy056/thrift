@@ -537,9 +537,10 @@ void t_cpp_generator::init_generator() {
   f_types_impl_ << "#include <ostream>" << '\n' << '\n';
   f_types_impl_ << "#include <thrift/TToString.h>" << '\n' << '\n';
 
-  // For template_streamop, we also need TToString.h in the .tcc file for complex types
+  // For template_streamop, we need TPrintTo.h in the .tcc file for direct streaming
+  // TPrintTo avoids the overhead of to_string which uses ostringstream internally
   if (gen_template_streamop_) {
-    f_types_tcc_ << "#include <thrift/TToString.h>" << '\n' << '\n';
+    f_types_tcc_ << "#include <thrift/TPrintTo.h>" << '\n' << '\n';
   }
 
   // Open namespace
@@ -2070,35 +2071,51 @@ void t_cpp_generator::generate_exception_what_method_decl(std::ostream& out,
 }
 
 namespace struct_ostream_operator_generator {
-void generate_required_field_value(std::ostream& out, const t_field* field) {
-  out << " << to_string(" << field->get_name() << ")";
+void generate_required_field_value(std::ostream& out, const t_field* field, bool use_printto) {
+  if (use_printto) {
+    // For template_streamop, use printTo for direct streaming without temporary strings
+    // Use comma operator: out << "x=", printTo(out, x)
+    out << ", printTo(out, " << field->get_name() << ")";
+  } else {
+    // For std::ostream, use to_string (backward compatible)
+    out << " << to_string(" << field->get_name() << ")";
+  }
 }
 
-void generate_optional_field_value(std::ostream& out, const t_field* field) {
-  out << "; (__isset." << field->get_name() << " ? (out";
-  generate_required_field_value(out, field);
-  out << ") : (out << \"<null>\"))";
+void generate_optional_field_value(std::ostream& out, const t_field* field, bool use_printto) {
+  out << "; (__isset." << field->get_name() << " ? ";
+  if (use_printto) {
+    // For printTo, call directly without wrapping in (out ...)
+    out << "printTo(out, " << field->get_name() << ")";
+  } else {
+    // For to_string, need to wrap with (out << ...)
+    out << "(out";
+    generate_required_field_value(out, field, use_printto);
+    out << ")";
+  }
+  out << " : (out << \"<null>\"))";
 }
 
-void generate_field_value(std::ostream& out, const t_field* field) {
+void generate_field_value(std::ostream& out, const t_field* field, bool use_printto) {
   if (field->get_req() == t_field::T_OPTIONAL)
-    generate_optional_field_value(out, field);
+    generate_optional_field_value(out, field, use_printto);
   else
-    generate_required_field_value(out, field);
+    generate_required_field_value(out, field, use_printto);
 }
 
 void generate_field_name(std::ostream& out, const t_field* field) {
   out << "\"" << field->get_name() << "=\"";
 }
 
-void generate_field(std::ostream& out, const t_field* field) {
+void generate_field(std::ostream& out, const t_field* field, bool use_printto) {
   generate_field_name(out, field);
-  generate_field_value(out, field);
+  generate_field_value(out, field, use_printto);
 }
 
 void generate_fields(std::ostream& out,
                      const vector<t_field*>& fields,
-                     const std::string& indent) {
+                     const std::string& indent,
+                     bool use_printto) {
   const vector<t_field*>::const_iterator beg = fields.begin();
   const vector<t_field*>::const_iterator end = fields.end();
 
@@ -2109,7 +2126,7 @@ void generate_fields(std::ostream& out,
       out << "\", \" << ";
     }
 
-    generate_field(out, *it);
+    generate_field(out, *it, use_printto);
     out << ";" << '\n';
   }
 }
@@ -2125,9 +2142,16 @@ void t_cpp_generator::generate_struct_print_method(std::ostream& out, t_struct* 
 
   indent_up();
 
+  bool use_printto = gen_template_streamop_;
+  if (use_printto) {
+    // For template_streamop, use printTo for direct streaming (better performance)
+    out << indent() << "using ::apache::thrift::printTo;" << '\n';
+  }
+  // Always include to_string as well for compatibility
   out << indent() << "using ::apache::thrift::to_string;" << '\n';
+  
   out << indent() << "out << \"" << tstruct->get_name() << "(\";" << '\n';
-  struct_ostream_operator_generator::generate_fields(out, tstruct->get_members(), indent());
+  struct_ostream_operator_generator::generate_fields(out, tstruct->get_members(), indent(), use_printto);
   out << indent() << "out << \")\";" << '\n';
 
   indent_down();
