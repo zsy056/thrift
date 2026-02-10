@@ -32,6 +32,7 @@
 
 // Include generated thrift types with template_streamop option
 #include "ThriftTest_types.h"
+#include <thrift/TToString.h>
 
 using namespace thrift::test;
 
@@ -173,6 +174,81 @@ int main() {
         assert(result.find("test message") != std::string::npos);
         assert(result.find("42") != std::string::npos);
         std::cout << "  ✓ Optional fields work" << std::endl;
+    }
+    
+    // Test 5: Test structs with map/set/list/vector
+    {
+        std::cout << "\n  Testing collection types..." << std::endl;
+        
+        // Create an Insanity struct with map and list
+        Insanity insanity;
+        
+        // Add items to the map
+        std::map<Numberz::type, UserId> userMap;
+        userMap[Numberz::ONE] = 1;
+        userMap[Numberz::FIVE] = 5;
+        insanity.__set_userMap(userMap);
+        
+        // Add items to the list
+        std::vector<Xtruct> xtructs;
+        Xtruct x1;
+        x1.__set_string_thing("first");
+        x1.__set_i32_thing(111);
+        xtructs.push_back(x1);
+        
+        Xtruct x2;
+        x2.__set_string_thing("second");
+        x2.__set_i32_thing(222);
+        xtructs.push_back(x2);
+        insanity.__set_xtructs(xtructs);
+        
+        // Test with std::ostringstream
+        std::ostringstream oss;
+        oss << insanity;
+        std::string result = oss.str();
+        
+        std::cout << "    std::ostringstream output: " << result << std::endl;
+        assert(!result.empty());
+        assert(result.find("Insanity") != std::string::npos);
+        assert(result.find("userMap") != std::string::npos);
+        assert(result.find("xtructs") != std::string::npos);
+        
+        // Test with MinimalStream
+        MinimalStream ms;
+        ms << insanity;
+        std::string ms_result = ms.str();
+        
+        std::cout << "    MinimalStream output: " << ms_result << std::endl;
+        assert(!ms_result.empty());
+        assert(ms_result.find("Insanity") != std::string::npos);
+        
+        std::cout << "  ✓ Map/List collections work with both streams" << std::endl;
+    }
+    
+    // Test 6: Test to_string compatibility with collection structs
+    {
+        std::cout << "\n  Testing to_string with collection structs..." << std::endl;
+        
+        Insanity insanity;
+        std::map<Numberz::type, UserId> userMap;
+        userMap[Numberz::TWO] = 2;
+        insanity.__set_userMap(userMap);
+        
+        std::vector<Xtruct> xtructs;
+        Xtruct x;
+        x.__set_string_thing("test");
+        x.__set_i32_thing(42);
+        xtructs.push_back(x);
+        insanity.__set_xtructs(xtructs);
+        
+        // to_string should work with the generated types
+        std::string str_result = apache::thrift::to_string(insanity);
+        
+        std::cout << "    to_string output: " << str_result << std::endl;
+        assert(!str_result.empty());
+        assert(str_result.find("Insanity") != std::string::npos);
+        
+        std::cout << "  ✓ to_string works with collection structs" << std::endl;
     }
     
     // Performance Test: Compare std::ostringstream vs MinimalStream

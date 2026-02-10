@@ -537,6 +537,11 @@ void t_cpp_generator::init_generator() {
   f_types_impl_ << "#include <ostream>" << '\n' << '\n';
   f_types_impl_ << "#include <thrift/TToString.h>" << '\n' << '\n';
 
+  // For template_streamop, we also need TToString.h in the .tcc file for complex types
+  if (gen_template_streamop_) {
+    f_types_tcc_ << "#include <thrift/TToString.h>" << '\n' << '\n';
+  }
+
   // Open namespace
   ns_open_ = namespace_open(program_->get_namespace("cpp"));
   ns_close_ = namespace_close(program_->get_namespace("cpp"));
@@ -2065,11 +2070,24 @@ void t_cpp_generator::generate_exception_what_method_decl(std::ostream& out,
 }
 
 namespace struct_ostream_operator_generator {
+
+// Helper to check if a type needs to_string even in template mode
+bool needs_to_string(const t_field* field) {
+  const t_type* type = field->get_type()->get_true_type();
+  // Only containers, structs, and xceptions need to_string
+  // Strings and UUIDs can be directly streamed
+  return type->is_container() 
+         || type->is_struct() 
+         || type->is_xception();
+}
+
 void generate_required_field_value(std::ostream& out, const t_field* field, bool use_to_string) {
-  if (use_to_string) {
-    out << " << to_string(" << field->get_name() << ")";
+  if (use_to_string || needs_to_string(field)) {
+    // Use apache::thrift::to_string for complex types or when in std::ostream mode
+    // Use full qualification to avoid ambiguity with std::to_string
+    out << " << ::apache::thrift::to_string(" << field->get_name() << ")";
   } else {
-    // For generic stream templates, output directly without to_string
+    // For generic stream templates with primitive types, output directly
     // Special handling for int8_t to avoid printing as char
     const t_type* type = field->get_type()->get_true_type();
     if (type->is_base_type()) {
@@ -2137,12 +2155,12 @@ void t_cpp_generator::generate_struct_print_method(std::ostream& out, t_struct* 
 
   indent_up();
 
-  bool use_to_string = !gen_template_streamop_;
-  if (use_to_string) {
-    // For std::ostream, we can use apache::thrift::to_string
-    out << indent() << "using ::apache::thrift::to_string;" << '\n';
-  }
+  // Always use to_string for complex types (containers, structs, strings)
+  // even when using template_streamop
+  out << indent() << "using ::apache::thrift::to_string;" << '\n';
   out << indent() << "out << \"" << tstruct->get_name() << "(\";" << '\n';
+  
+  bool use_to_string = !gen_template_streamop_;
   struct_ostream_operator_generator::generate_fields(out, tstruct->get_members(), indent(), use_to_string);
   out << indent() << "out << \")\";" << '\n';
 
