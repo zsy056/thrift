@@ -2076,10 +2076,10 @@ void generate_required_field_value(std::ostream& out, const t_field* field, bool
     // For template_streamop, use printTo for direct streaming without temporary strings
     // Use comma operator: out << "x=", printTo(out, x)
     out << ", printTo(out, " << field->get_name() << ")";
-  } else {
-    // For std::ostream, use to_string (backward compatible)
-    out << " << to_string(" << field->get_name() << ")";
+    return;
   }
+  // For std::ostream, use to_string (backward compatible)
+  out << " << to_string(" << field->get_name() << ")";
 }
 
 void generate_optional_field_value(std::ostream& out, const t_field* field, bool use_printto) {
