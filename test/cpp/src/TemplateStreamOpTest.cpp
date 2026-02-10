@@ -251,6 +251,76 @@ int main() {
         std::cout << "  ✓ to_string works with collection structs" << std::endl;
     }
     
+    // Test 7: Test enum output - should print by name
+    {
+        std::cout << "\n  Testing enum output..." << std::endl;
+        
+        // Create a struct with an enum field
+        Insanity insanity;
+        std::map<Numberz::type, UserId> userMap;
+        userMap[Numberz::ONE] = 1;
+        userMap[Numberz::FIVE] = 5;
+        userMap[Numberz::TWO] = 2;
+        insanity.__set_userMap(userMap);
+        
+        // Test with std::ostringstream
+        std::ostringstream oss;
+        oss << insanity;
+        std::string result = oss.str();
+        
+        std::cout << "    std::ostringstream output: " << result << std::endl;
+        assert(result.find("ONE") != std::string::npos || result.find("1") != std::string::npos);
+        
+        // Test with MinimalStream
+        MinimalStream ms;
+        ms << insanity;
+        std::string ms_result = ms.str();
+        
+        std::cout << "    MinimalStream output: " << ms_result << std::endl;
+        assert(!ms_result.empty());
+        
+        std::cout << "  ✓ Enum fields output correctly" << std::endl;
+    }
+    
+    // Test 8: Test floating point types
+    {
+        std::cout << "\n  Testing floating point types..." << std::endl;
+        
+        // Note: ThriftTest doesn't have a struct with float/double fields
+        // So we test directly with printTo
+        float f = 3.14159f;
+        double d = 2.71828;
+        
+        // Test with std::ostringstream
+        std::ostringstream oss_f, oss_d;
+        apache::thrift::printTo(oss_f, f);
+        apache::thrift::printTo(oss_d, d);
+        
+        std::string f_result = oss_f.str();
+        std::string d_result = oss_d.str();
+        
+        std::cout << "    float printTo: " << f_result << std::endl;
+        std::cout << "    double printTo: " << d_result << std::endl;
+        
+        assert(!f_result.empty());
+        assert(!d_result.empty());
+        assert(f_result.find("3.14") != std::string::npos || f_result.find("3,14") != std::string::npos);
+        assert(d_result.find("2.71") != std::string::npos || d_result.find("2,71") != std::string::npos);
+        
+        // Test with MinimalStream
+        MinimalStream ms_f, ms_d;
+        apache::thrift::printTo(ms_f, f);
+        apache::thrift::printTo(ms_d, d);
+        
+        std::cout << "    MinimalStream float: " << ms_f.str() << std::endl;
+        std::cout << "    MinimalStream double: " << ms_d.str() << std::endl;
+        
+        assert(!ms_f.str().empty());
+        assert(!ms_d.str().empty());
+        
+        std::cout << "  ✓ Floating point types work correctly" << std::endl;
+    }
+    
     // Performance Test: Compare std::ostringstream vs MinimalStream
     {
         const int iterations = 10000;

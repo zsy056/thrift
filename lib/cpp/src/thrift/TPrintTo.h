@@ -20,8 +20,6 @@
 #ifndef _THRIFT_TPRINTTO_H_
 #define _THRIFT_TPRINTTO_H_ 1
 
-#include <cmath>
-#include <limits>
 #include <map>
 #include <set>
 #include <vector>
@@ -39,32 +37,6 @@ void printTo(OStream& out, const T& t) {
 template <typename OStream>
 void printTo(OStream& out, const int8_t& t) {
   out << static_cast<int>(t);
-}
-
-// Special precision handling for floating point types
-template <typename OStream>
-void printTo(OStream& out, const float& t) {
-  // Save and restore precision
-  auto old_precision = out.precision();
-  out.precision(static_cast<std::streamsize>(std::ceil(static_cast<double>(std::numeric_limits<float>::digits * std::log10(2.0f) + 1))));
-  out << t;
-  out.precision(old_precision);
-}
-
-template <typename OStream>
-void printTo(OStream& out, const double& t) {
-  auto old_precision = out.precision();
-  out.precision(static_cast<std::streamsize>(std::ceil(static_cast<double>(std::numeric_limits<double>::digits * std::log10(2.0f) + 1))));
-  out << t;
-  out.precision(old_precision);
-}
-
-template <typename OStream>
-void printTo(OStream& out, const long double& t) {
-  auto old_precision = out.precision();
-  out.precision(static_cast<std::streamsize>(std::ceil(static_cast<double>(std::numeric_limits<long double>::digits * std::log10(2.0f) + 1))));
-  out << t;
-  out.precision(old_precision);
 }
 
 // Forward declarations for collection types

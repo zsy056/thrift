@@ -2072,26 +2072,32 @@ void t_cpp_generator::generate_exception_what_method_decl(std::ostream& out,
 
 namespace struct_ostream_operator_generator {
 void generate_required_field_value(std::ostream& out, const t_field* field, bool use_printto) {
-  if (use_printto) {
-    // For template_streamop, use printTo for direct streaming without temporary strings
+  // Check if field is an enum - enums should always use to_string to print by name
+  const t_type* type = field->get_type()->get_true_type();
+  bool is_enum_field = type->is_enum();
+  
+  if (use_printto && !is_enum_field) {
+    // For template_streamop with non-enum types, use printTo for direct streaming without temporary strings
     // Use comma operator: out << "x=", printTo(out, x)
     out << ", printTo(out, " << field->get_name() << ")";
     return;
   }
-  // For std::ostream, use to_string (backward compatible)
+  // For std::ostream or enum types, use to_string (backward compatible, and ensures enums print by name)
   out << " << to_string(" << field->get_name() << ")";
 }
 
 void generate_optional_field_value(std::ostream& out, const t_field* field, bool use_printto) {
+  // Check if field is an enum - enums should always use to_string to print by name
+  const t_type* type = field->get_type()->get_true_type();
+  bool is_enum_field = type->is_enum();
+  
   out << "; (__isset." << field->get_name() << " ? ";
-  if (use_printto) {
-    // For printTo, call directly without wrapping in (out ...)
+  if (use_printto && !is_enum_field) {
+    // For printTo with non-enum, call directly without wrapping in (out ...)
     out << "printTo(out, " << field->get_name() << ")";
   } else {
-    // For to_string, need to wrap with (out << ...)
-    out << "(out";
-    generate_required_field_value(out, field, use_printto);
-    out << ")";
+    // For to_string or enum, need to wrap with (out << ...)
+    out << "(out << to_string(" << field->get_name() << "))";
   }
   out << " : (out << \"<null>\"))";
 }
