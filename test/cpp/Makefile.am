@@ -30,6 +30,7 @@ BUILT_SOURCES = gen-cpp/ThriftTest.cpp \
                 gen-cpp-enumclass/ThriftTest_types.cpp \
                 gen-cpp-enumclass/ThriftTest_constants.cpp \
                 gen-cpp-templatestreamop/ThriftTest_types.cpp \
+                gen-cpp-templatestreamop/ThriftTest_types.tcc \
                 gen-cpp-templatestreamop/ThriftTest_constants.cpp
 
 noinst_LTLIBRARIES = libtestgencpp.la libstresstestgencpp.la
@@ -87,6 +88,7 @@ libenumclasstestgencpp_la_LIBADD = $(top_builddir)/lib/cpp/libthrift.la
 nodist_libtemplatestreamoptestgencpp_la_SOURCES = \
 	gen-cpp-templatestreamop/ThriftTest_types.cpp \
 	gen-cpp-templatestreamop/ThriftTest_types.h \
+	gen-cpp-templatestreamop/ThriftTest_types.tcc \
 	gen-cpp-templatestreamop/ThriftTest_constants.cpp \
 	gen-cpp-templatestreamop/ThriftTest_constants.h \
 	src/ThriftTest_extras.cpp
@@ -205,7 +207,7 @@ gen-cpp-enumclass/ThriftTest_types.cpp gen-cpp-enumclass/ThriftTest_types.h gen-
 	$(THRIFT) --gen cpp:pure_enums=enum_class -out gen-cpp-enumclass $<
 
 # Generate ThriftTest with template_streamop option
-gen-cpp-templatestreamop/ThriftTest_types.cpp gen-cpp-templatestreamop/ThriftTest_types.h gen-cpp-templatestreamop/ThriftTest_constants.cpp: $(top_srcdir)/test/ThriftTest.thrift $(THRIFT)
+gen-cpp-templatestreamop/ThriftTest_types.cpp gen-cpp-templatestreamop/ThriftTest_types.h gen-cpp-templatestreamop/ThriftTest_types.tcc gen-cpp-templatestreamop/ThriftTest_constants.cpp: $(top_srcdir)/test/ThriftTest.thrift $(THRIFT)
 	$(MKDIR_P) gen-cpp-templatestreamop
 	$(THRIFT) --gen cpp:template_streamop -out gen-cpp-templatestreamop $<
 
