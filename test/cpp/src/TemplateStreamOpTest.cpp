@@ -29,6 +29,9 @@
 #include <map>
 #include <cassert>
 #include <chrono>
+#include <cstring>
+#include <cstdio>
+#include <cstdint>
 
 // Include generated thrift types with template_streamop option
 #include "ThriftTest_types.h"
@@ -39,59 +42,156 @@ using namespace thrift::test;
 // Custom minimal stream implementation for testing and performance comparison
 class MinimalStream {
 private:
-    std::string buffer_;
+    static constexpr size_t STACK_BUFFER_SIZE = 2048;
+    char stack_buffer_[STACK_BUFFER_SIZE];
+    char* buffer_;
+    size_t size_;
+    size_t capacity_;
+    bool on_heap_;
+    
+    void ensure_capacity(size_t additional) {
+        size_t needed = size_ + additional;
+        if (needed <= capacity_) return;
+        
+        size_t new_capacity = capacity_;
+        while (new_capacity < needed) {
+            new_capacity *= 2;
+        }
+        
+        char* new_buffer = new char[new_capacity];
+        if (size_ > 0) {
+            std::memcpy(new_buffer, buffer_, size_);
+        }
+        
+        if (on_heap_) {
+            delete[] buffer_;
+        }
+        
+        buffer_ = new_buffer;
+        capacity_ = new_capacity;
+        on_heap_ = true;
+    }
+    
+    void append(const char* s, size_t len) {
+        ensure_capacity(len);
+        std::memcpy(buffer_ + size_, s, len);
+        size_ += len;
+    }
+    
+    // Helper to print integer directly to buffer
+    template<typename T>
+    void print_integer(T value) {
+        char temp[32];  // Enough for any 64-bit integer
+        char* p = temp + sizeof(temp);
+        bool negative = value < 0;
+        
+        if (negative) {
+            value = -value;
+        }
+        
+        do {
+            *--p = '0' + (value % 10);
+            value /= 10;
+        } while (value > 0);
+        
+        if (negative) {
+            *--p = '-';
+        }
+        
+        append(p, temp + sizeof(temp) - p);
+    }
+    
+    // Helper to print unsigned integer directly to buffer
+    template<typename T>
+    void print_unsigned(T value) {
+        char temp[32];
+        char* p = temp + sizeof(temp);
+        
+        do {
+            *--p = '0' + (value % 10);
+            value /= 10;
+        } while (value > 0);
+        
+        append(p, temp + sizeof(temp) - p);
+    }
+    
 public:
+    MinimalStream() 
+        : buffer_(stack_buffer_), size_(0), capacity_(STACK_BUFFER_SIZE), on_heap_(false) {}
+    
+    ~MinimalStream() {
+        if (on_heap_) {
+            delete[] buffer_;
+        }
+    }
+    
     MinimalStream& operator<<(const std::string& s) {
-        buffer_ += s;
+        append(s.c_str(), s.size());
         return *this;
     }
     
     MinimalStream& operator<<(const char* s) {
-        buffer_ += s;
+        append(s, std::strlen(s));
         return *this;
     }
     
     MinimalStream& operator<<(char c) {
-        buffer_ += c;
+        ensure_capacity(1);
+        buffer_[size_++] = c;
         return *this;
     }
     
     MinimalStream& operator<<(int32_t i) {
-        buffer_ += std::to_string(i);
+        print_integer(i);
         return *this;
     }
     
     MinimalStream& operator<<(int64_t i) {
-        buffer_ += std::to_string(i);
+        print_integer(i);
         return *this;
     }
     
     MinimalStream& operator<<(uint32_t i) {
-        buffer_ += std::to_string(i);
+        print_unsigned(i);
         return *this;
     }
     
     MinimalStream& operator<<(uint64_t i) {
-        buffer_ += std::to_string(i);
+        print_unsigned(i);
         return *this;
     }
     
     MinimalStream& operator<<(double d) {
-        buffer_ += std::to_string(d);
+        // For doubles, we still need sprintf for proper formatting
+        char temp[64];
+        int len = std::snprintf(temp, sizeof(temp), "%g", d);
+        if (len > 0) {
+            append(temp, len);
+        }
         return *this;
     }
     
     MinimalStream& operator<<(bool b) {
-        buffer_ += (b ? "true" : "false");
+        if (b) {
+            append("true", 4);
+        } else {
+            append("false", 5);
+        }
         return *this;
     }
     
     std::string str() const {
-        return buffer_;
+        return std::string(buffer_, size_);
     }
     
     void clear() {
-        buffer_.clear();
+        if (on_heap_) {
+            delete[] buffer_;
+            buffer_ = stack_buffer_;
+            capacity_ = STACK_BUFFER_SIZE;
+            on_heap_ = false;
+        }
+        size_ = 0;
     }
 };
 
