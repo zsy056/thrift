@@ -162,3 +162,48 @@ TEST_CASE("t_cpp_generator with template_streamop and private_optional generates
     REQUIRE(class_def.find("friend template <typename OStream_>") == string::npos);
 }
 
+
+TEST_CASE("t_cpp_generator with template_streamop generates enum printTo specialization", "[functional]")
+{
+    string path = join_path(source_dir(), "test_template_streamop.thrift");
+    string name = "test_template_streamop";
+    map<string, string> parsed_options = {{"template_streamop", ""}};
+    string option_string = "";
+
+    std::unique_ptr<t_program> program(new t_program(path, name));
+    parse_thrift_for_test(program.get());
+    
+    std::unique_ptr<t_generator> gen(
+        new t_cpp_generator(program.get(), parsed_options, option_string));
+    
+    gen->generate_program();
+    
+    // Check that header declares template printTo for enum
+    string header_file = "../" + name + "_types.h";
+    ifstream header_stream(header_file.c_str());
+    REQUIRE(header_stream.good());
+    
+    string header_content((istreambuf_iterator<char>(header_stream)),
+                          istreambuf_iterator<char>());
+    
+    // Should have template printTo declaration for Status enum
+    REQUIRE(header_content.find("template <typename OStream_>") != string::npos);
+    REQUIRE(header_content.find("void printTo(OStream_& out, const Status::type& val);") != string::npos);
+    
+    // Check that .tcc file contains implementation
+    string tcc_file = "../" + name + "_types.tcc";
+    ifstream tcc_stream(tcc_file.c_str());
+    REQUIRE(tcc_stream.good());
+    
+    string tcc_content((istreambuf_iterator<char>(tcc_stream)),
+                       istreambuf_iterator<char>());
+    
+    // Should have template printTo implementation for Status enum
+    REQUIRE(tcc_content.find("void printTo(OStream_& out, const Status::type& val)") != string::npos);
+    REQUIRE(tcc_content.find("_Status_VALUES_TO_NAMES.find") != string::npos);
+    REQUIRE(tcc_content.find("out << it->second;") != string::npos);
+    
+    // Verify StructWithEnum uses printTo (not to_string) for enum field
+    REQUIRE(tcc_content.find("void StructWithEnum::printTo") != string::npos);
+    REQUIRE(tcc_content.find("printTo(out, status)") != string::npos);
+}

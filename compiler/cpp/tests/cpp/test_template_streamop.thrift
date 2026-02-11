@@ -17,6 +17,12 @@
 
 namespace cpp test.template_streamop
 
+enum Status {
+  ACTIVE = 1,
+  INACTIVE = 2,
+  PENDING = 3,
+}
+
 struct SimpleStruct {
   1: i32 id;
   2: string name;
@@ -26,4 +32,9 @@ struct SimpleStruct {
 struct NestedStruct {
   1: i32 value;
   2: SimpleStruct inner;
+}
+
+struct StructWithEnum {
+  1: Status status;
+  2: string name;
 }

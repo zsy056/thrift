@@ -133,6 +133,8 @@ public:
   void generate_enum_ostream_operator(std::ostream& out, t_enum* tenum);
   void generate_enum_to_string_helper_function_decl(std::ostream& out, t_enum* tenum);
   void generate_enum_to_string_helper_function(std::ostream& out, t_enum* tenum);
+  void generate_enum_printto_helper_function_decl(std::ostream& out, t_enum* tenum);
+  void generate_enum_printto_helper_function(std::ostream& out, t_enum* tenum);
   void generate_forward_declaration(t_struct* tstruct) override;
   void generate_struct(t_struct* tstruct) override { generate_cpp_struct(tstruct, false); }
   void generate_xception(t_struct* txception) override { generate_cpp_struct(txception, true); }
@@ -694,6 +696,12 @@ void t_cpp_generator::generate_enum(t_enum* tenum) {
   generate_enum_to_string_helper_function_decl(f_types_, tenum);
   generate_enum_to_string_helper_function(f_types_impl_, tenum);
 
+  // Generate template printTo specialization for enums when template_streamop is enabled
+  if (gen_template_streamop_) {
+    generate_enum_printto_helper_function_decl(f_types_, tenum);
+    generate_enum_printto_helper_function(f_types_tcc_, tenum);
+  }
+
   has_members_ = true;
 }
 
@@ -783,6 +791,52 @@ void t_cpp_generator::generate_enum_to_string_helper_function(std::ostream& out,
     out << indent() << "} else {" << '\n';
     indent_up();
     out << indent() << "return std::to_string(static_cast<int>(val));" << '\n';
+    indent_down();
+    out << indent() << "}" << '\n';
+
+    scope_down(out);
+    out << '\n';
+  }
+}
+
+void t_cpp_generator::generate_enum_printto_helper_function_decl(std::ostream& out, t_enum* tenum) {
+  out << "template <typename OStream_>" << '\n';
+  out << "void printTo(OStream_& out, const ";
+  if (gen_pure_enums_) {
+    out << tenum->get_name();
+  } else {
+    out << tenum->get_name() << "::type&";
+  }
+  out << " val);" << '\n';
+  out << '\n';
+}
+
+void t_cpp_generator::generate_enum_printto_helper_function(std::ostream& out, t_enum* tenum) {
+  if (!has_custom_ostream(tenum)) {
+    out << "template <typename OStream_>" << '\n';
+    out << "void printTo(OStream_& out, const ";
+    if (gen_pure_enums_) {
+      out << tenum->get_name();
+    } else {
+      out << tenum->get_name() << "::type&";
+    }
+    out << " val) ";
+    scope_up(out);
+
+    out << indent() << "std::map<int, const char*>::const_iterator it = _"
+             << tenum->get_name() << "_VALUES_TO_NAMES.find(";
+    if (gen_enum_class_) {
+      out << "static_cast<int>(val));" << '\n';
+    } else {
+      out << "val);" << '\n';
+    }
+    out << indent() << "if (it != _" << tenum->get_name() << "_VALUES_TO_NAMES.end()) {" << '\n';
+    indent_up();
+    out << indent() << "out << it->second;" << '\n';
+    indent_down();
+    out << indent() << "} else {" << '\n';
+    indent_up();
+    out << indent() << "out << static_cast<int>(val);" << '\n';
     indent_down();
     out << indent() << "}" << '\n';
 
@@ -2072,31 +2126,23 @@ void t_cpp_generator::generate_exception_what_method_decl(std::ostream& out,
 
 namespace struct_ostream_operator_generator {
 void generate_required_field_value(std::ostream& out, const t_field* field, bool use_printto) {
-  // Check if field is an enum - enums should always use to_string to print by name
-  const t_type* type = field->get_type()->get_true_type();
-  bool is_enum_field = type->is_enum();
-  
-  if (use_printto && !is_enum_field) {
-    // For template_streamop with non-enum types, use printTo for direct streaming without temporary strings
+  if (use_printto) {
+    // For template_streamop, use printTo for direct streaming without temporary strings
     // Use comma operator: out << "x=", printTo(out, x)
     out << ", printTo(out, " << field->get_name() << ")";
     return;
   }
-  // For std::ostream or enum types, use to_string (backward compatible, and ensures enums print by name)
+  // For std::ostream, use to_string (backward compatible)
   out << " << to_string(" << field->get_name() << ")";
 }
 
 void generate_optional_field_value(std::ostream& out, const t_field* field, bool use_printto) {
-  // Check if field is an enum - enums should always use to_string to print by name
-  const t_type* type = field->get_type()->get_true_type();
-  bool is_enum_field = type->is_enum();
-  
   out << "; (__isset." << field->get_name() << " ? ";
-  if (use_printto && !is_enum_field) {
-    // For printTo with non-enum, call directly without wrapping in (out ...)
+  if (use_printto) {
+    // For printTo, call directly without wrapping in (out ...)
     out << "printTo(out, " << field->get_name() << ")";
   } else {
-    // For to_string or enum, need to wrap with (out << ...)
+    // For to_string, need to wrap with (out << ...)
     out << "(out << to_string(" << field->get_name() << "))";
   }
   out << " : (out << \"<null>\"))";
