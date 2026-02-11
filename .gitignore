@@ -462,3 +462,4 @@ _codeql_detected_source_root
 *.kotlin/sessions/
 build_full/
 build_compiler/
+build_test/
