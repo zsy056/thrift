@@ -37,7 +37,9 @@
 
 using namespace thrift::test;
 
-// SFINAE test to check if optional field 'aa' is directly accessible
+// SFINAE helpers to verify field accessibility at compile time.
+// Each requires a separate template because C++ template parameters cannot be
+// string literals, so each field name gets its own specialisation.
 template<typename T, typename = void>
 struct has_public_aa : std::false_type {};
 

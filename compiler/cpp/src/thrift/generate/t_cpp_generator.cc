@@ -2143,12 +2143,13 @@ void generate_required_field_value(std::ostream& out, const t_field* field, bool
 void generate_optional_field_value(std::ostream& out, const t_field* field, bool use_printto) {
   out << "; (__isset." << field->get_name() << " ? ";
   if (use_printto) {
-    // printTo returns void; both branches of the ternary must be void to avoid
-    // a type mismatch compile error with arbitrary OStream_ template parameters.
+    // printTo() returns void. Both ternary branches must have the same type, so
+    // cast the false-branch to void as well. The non-printTo path below does not
+    // need the cast because both of its branches return the same stream reference.
     out << "printTo(out, " << field->get_name() << ")";
     out << " : (void)(out << \"<null>\"))";
   } else {
-    // For to_string, need to wrap with (out << ...)
+    // Both branches return std::ostream&, so no cast is needed.
     out << "(out << to_string(" << field->get_name() << "))";
     out << " : (out << \"<null>\"))";
   }
