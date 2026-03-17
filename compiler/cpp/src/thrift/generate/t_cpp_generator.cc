@@ -1618,7 +1618,11 @@ void t_cpp_generator::generate_struct_declaration(ostream& out,
     generate_struct_swap_decl(out, tstruct);
   }
 
-  if (is_user_struct) {
+  // When both private_optional and template_streamop are enabled, the friend
+  // function template declared inside the class body is sufficient (it is
+  // findable via ADL). Emitting a second namespace-scope declaration would
+  // place the 'friend' keyword outside a class, which is ill-formed.
+  if (is_user_struct && !(gen_private_optional_ && gen_template_streamop_)) {
     generate_struct_ostream_operator_decl(out, tstruct);
   }
 }
@@ -2139,13 +2143,15 @@ void generate_required_field_value(std::ostream& out, const t_field* field, bool
 void generate_optional_field_value(std::ostream& out, const t_field* field, bool use_printto) {
   out << "; (__isset." << field->get_name() << " ? ";
   if (use_printto) {
-    // For printTo, call directly without wrapping in (out ...)
+    // printTo returns void; both branches of the ternary must be void to avoid
+    // a type mismatch compile error with arbitrary OStream_ template parameters.
     out << "printTo(out, " << field->get_name() << ")";
+    out << " : (void)(out << \"<null>\"))";
   } else {
     // For to_string, need to wrap with (out << ...)
     out << "(out << to_string(" << field->get_name() << "))";
+    out << " : (out << \"<null>\"))";
   }
-  out << " : (out << \"<null>\"))";
 }
 
 void generate_field_value(std::ostream& out, const t_field* field, bool use_printto) {
