@@ -23,6 +23,8 @@ BUILT_SOURCES = gen-cpp/ThriftTest.cpp \
                 gen-cpp/ThriftTest_constants.cpp \
                 gen-cpp/SecondService.cpp \
                 gen-cpp/Service.cpp \
+                gen-cpp/StressService.cpp \
+                gen-cpp-unordered/StressService.cpp \
                 gen-cpp-forward/ThriftTest_types.cpp \
                 gen-cpp-forward/ThriftTest_constants.cpp \
                 gen-cpp-private/ThriftTest_types.cpp \
@@ -33,7 +35,8 @@ BUILT_SOURCES = gen-cpp/ThriftTest.cpp \
                 gen-cpp-templatestreamop/ThriftTest_types.tcc \
                 gen-cpp-templatestreamop/ThriftTest_constants.cpp
 
-noinst_LTLIBRARIES = libtestgencpp.la libstresstestgencpp.la
+noinst_LTLIBRARIES = libtestgencpp.la libstresstestgencpp.la \
+	libstresssvcgencpp.la libstresssvcgencpp_unordered.la
 nodist_libtestgencpp_la_SOURCES = \
 	gen-cpp/SecondService.cpp \
 	gen-cpp/SecondService.h \
@@ -102,6 +105,20 @@ nodist_libstresstestgencpp_la_SOURCES = \
 
 libstresstestgencpp_la_LIBADD = $(top_builddir)/lib/cpp/libthrift.la
 
+nodist_libstresssvcgencpp_la_SOURCES = \
+	gen-cpp/StressService.cpp \
+	gen-cpp/StressService.h
+
+libstresssvcgencpp_la_LIBADD = $(top_builddir)/lib/cpp/libthrift.la
+
+nodist_libstresssvcgencpp_unordered_la_SOURCES = \
+	gen-cpp-unordered/StressService.cpp \
+	gen-cpp-unordered/StressService.h \
+	src/ProcessorMapBenchmarkUnorderedFactory.cpp
+
+libstresssvcgencpp_unordered_la_CPPFLAGS = -Igen-cpp-unordered -Dstresssvc=stresssvc_unordered $(AM_CPPFLAGS)
+libstresssvcgencpp_unordered_la_LIBADD = $(top_builddir)/lib/cpp/libthrift.la
+
 precross: TestServer TestClient
 
 check_PROGRAMS = \
@@ -112,7 +129,8 @@ check_PROGRAMS = \
 	ForwardSetterTest \
 	PrivateOptionalTest \
 	EnumClassTest \
-	TemplateStreamOpTest
+	TemplateStreamOpTest \
+	ProcessorMapBenchmark
 
 # we currently do not run the testsuite, stop c++ server issue
 # TESTS = \
@@ -185,6 +203,14 @@ TemplateStreamOpTest_LDADD = \
 	libtemplatestreamoptestgencpp.la \
 	$(top_builddir)/lib/cpp/libthrift.la
 
+ProcessorMapBenchmark_SOURCES = \
+	src/ProcessorMapBenchmark.cpp
+
+ProcessorMapBenchmark_LDADD = \
+	libstresssvcgencpp.la \
+	libstresssvcgencpp_unordered.la \
+	$(top_builddir)/lib/cpp/libthrift.la
+
 #
 # Common thrift code generation rules
 #
@@ -214,6 +240,15 @@ gen-cpp-templatestreamop/ThriftTest_types.cpp gen-cpp-templatestreamop/ThriftTes
 gen-cpp/Service.cpp: $(top_srcdir)/test/StressTest.thrift $(THRIFT)
 	$(THRIFT) --gen cpp $<
 
+# Generate StressService (ordered, std::map ProcessMap)
+gen-cpp/StressService.cpp gen-cpp/StressService.h: $(top_srcdir)/test/StressService.thrift $(THRIFT)
+	$(THRIFT) --gen cpp $<
+
+# Generate StressService with unordered_processor_map option
+gen-cpp-unordered/StressService.cpp gen-cpp-unordered/StressService.h: $(top_srcdir)/test/StressService.thrift $(THRIFT)
+	$(MKDIR_P) gen-cpp-unordered
+	$(THRIFT) --gen cpp:unordered_processor_map -out gen-cpp-unordered $<
+
 gen-cpp/SpecificNameTest_types.cpp gen-cpp/EchoService.cpp: $(top_srcdir)/test/SpecificName.thrift $(THRIFT)
 	$(THRIFT) --gen cpp $<
 
@@ -222,7 +257,7 @@ AM_CXXFLAGS = -Wall -Wextra -pedantic -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACR
 AM_LDFLAGS = $(BOOST_LDFLAGS) $(LIBEVENT_LDFLAGS) $(ZLIB_LIBS)
 
 clean-local:
-	$(RM) -r gen-cpp/ gen-cpp-forward/ gen-cpp-private/ gen-cpp-enumclass/ gen-cpp-templatestreamop/
+	$(RM) -r gen-cpp/ gen-cpp-forward/ gen-cpp-private/ gen-cpp-enumclass/ gen-cpp-templatestreamop/ gen-cpp-unordered/
 
 style-local:
 	$(CPPSTYLE_CMD)
@@ -238,4 +273,7 @@ EXTRA_DIST = \
 	src/ForwardSetterTest.cpp \
 	src/PrivateOptionalTest.cpp \
 	src/EnumClassTest.cpp \
-	src/TemplateStreamOpTest.cpp
+	src/TemplateStreamOpTest.cpp \
+	src/ProcessorMapBenchmark.cpp \
+	src/ProcessorMapBenchmarkUnorderedFactory.cpp \
+	src/ProcessorMapBenchmarkUnorderedFactory.h

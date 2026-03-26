@@ -5,6 +5,7 @@ on:
     branches: [ '*' ]
   pull_request:
     branches: [ '*' ]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -16,7 +17,7 @@ permissions:
 jobs:
   build:
     runs-on: windows-2025
-    if: false   # currently broken -> see THRIFT-5936
+    if: true
     env:
       THRIFT_BUILD_DIR: C:\thrift-build
 
