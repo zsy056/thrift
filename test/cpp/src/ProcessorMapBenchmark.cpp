@@ -74,12 +74,47 @@ static std::vector<uint8_t> encodeCall(const std::string& methodName) {
 
 // Build encoded call buffers for all NUM_METHODS methods.
 static std::vector<std::vector<uint8_t>> buildEncodedCalls() {
+  static const char* kMethodNames[NUM_METHODS] = {
+    "ctgdctopacgpossklhwtekhftcjjig",
+    "snzjovqwpsb",
+    "uzwwjlvejrsrbqngm",
+    "zqorvufaigfywirkxl",
+    "dtotlpjzdmtwderpkp",
+    "nzwasrngqcllywgnexwhqpdt",
+    "yxxpmcjzuggoctvzndryenpzytr",
+    "krjxlgbaopasbbainhm",
+    "dyomuuecllmsrzckiwgelkhgylw",
+    "cqoactgkmwxeakyuhssurmefbtb",
+    "bpnweyceprgdxgpqkpny",
+    "rigdqlyyaqocnndj",
+    "wjevspzravhr",
+    "gxtehfirwngxbq",
+    "bidzelsocyrdajolbj",
+    "xfgcuwkqeyw",
+    "watiyuwvgucwwfv",
+    "jvwfrkhbujnrviawgpzapiul",
+    "dxeblnurytflyxqrdxnrisoerj",
+    "qhoahlprmlfmxue",
+    "hrqcygiudbzp",
+    "lxosjkdrxwxu",
+    "eynbgwlurzpyxpsnv",
+    "lewltvhumglsgixcdjdfkimbvku",
+    "wtjajtwykt",
+    "uxmhmkrusvxznxprclwegiliwhy",
+    "gcaozjquqtyfaddrofstept",
+    "ueipyoxjyfpvg",
+    "wpdzujljniwvcyqvslt",
+    "hvnmltgwvcwgmpjawefuiwshaycsmt",
+    "qmucfrhpmnltishgdfdntefms",
+    "pzvhjhsdbbhyqtcahmizgwcbmp",
+    "dvycgokpquj",
+    "hplobyctqgcgoekrmahhwbgg",
+    "pufcfdgdbupvxlmhkholpxtpafrwpa",
+  };
   std::vector<std::vector<uint8_t>> calls;
   calls.reserve(NUM_METHODS);
-  char name[16];
-  for (int i = 1; i <= NUM_METHODS; ++i) {
-    std::snprintf(name, sizeof(name), "method%02d", i);
-    calls.push_back(encodeCall(name));
+  for (int i = 0; i < NUM_METHODS; ++i) {
+    calls.push_back(encodeCall(kMethodNames[i]));
   }
   return calls;
 }
