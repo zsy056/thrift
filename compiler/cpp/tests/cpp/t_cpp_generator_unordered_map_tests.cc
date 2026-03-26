@@ -53,11 +53,11 @@ TEST_CASE("t_cpp_generator default behavior uses std::map for processor map", "[
     REQUIRE(generated_content.find("#include <unordered_map>") == string::npos);
 }
 
-TEST_CASE("t_cpp_generator with unordered_map uses std::unordered_map for processor map", "[functional]")
+TEST_CASE("t_cpp_generator with unordered_processor_map uses std::unordered_map for processor map", "[functional]")
 {
     string path = join_path(source_dir(), "test_unordered_map.thrift");
     string name = "test_unordered_map";
-    map<string, string> parsed_options = {{"unordered_map", ""}};
+    map<string, string> parsed_options = {{"unordered_processor_map", ""}};
     string option_string = "";
 
     std::unique_ptr<t_program> program(new t_program(path, name));
@@ -81,11 +81,11 @@ TEST_CASE("t_cpp_generator with unordered_map uses std::unordered_map for proces
     REQUIRE(generated_content.find("#include <unordered_map>") != string::npos);
 }
 
-TEST_CASE("t_cpp_generator with unordered_map and templates uses std::unordered_map for processor map", "[functional]")
+TEST_CASE("t_cpp_generator with unordered_processor_map and templates uses std::unordered_map for processor map", "[functional]")
 {
     string path = join_path(source_dir(), "test_unordered_map.thrift");
     string name = "test_unordered_map";
-    map<string, string> parsed_options = {{"unordered_map", ""}, {"templates", ""}};
+    map<string, string> parsed_options = {{"unordered_processor_map", ""}, {"templates", ""}};
     string option_string = "";
 
     std::unique_ptr<t_program> program(new t_program(path, name));
