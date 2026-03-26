@@ -29,7 +29,7 @@
  *                             compiled with -Dstresssvc=stresssvc_unordered so
  *                             it lives in a distinct namespace
  *
- * Messages are encoded once into TFramedTransport-framed buffers and then
+ * Messages are encoded once into raw binary protocol buffers and then
  * fed to each processor through TMemoryBuffer, keeping the network stack out
  * of the picture.
  */
@@ -41,31 +41,26 @@
 #include <thrift/transport/TBufferTransports.h>
 
 #include <chrono>
-#include <cstdio>
-#include <cstring>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
 
 using apache::thrift::protocol::TBinaryProtocol;
-using apache::thrift::transport::TFramedTransport;
 using apache::thrift::transport::TMemoryBuffer;
 
 static const int NUM_METHODS = 35;
 static const int NUM_LOOKUPS = 1000000;
 
-// Encode a single void method call into a TFramedTransport-framed byte buffer.
+// Encode a single void method call into a raw binary protocol byte buffer.
 static std::vector<uint8_t> encodeCall(const std::string& methodName) {
   auto mem = std::make_shared<TMemoryBuffer>();
-  auto ft = std::make_shared<TFramedTransport>(mem);
-  auto proto = std::make_shared<TBinaryProtocol>(ft);
+  auto proto = std::make_shared<TBinaryProtocol>(mem);
   proto->writeMessageBegin(methodName, apache::thrift::protocol::T_CALL, 1);
   proto->writeStructBegin("");
   proto->writeFieldStop();
   proto->writeStructEnd();
   proto->writeMessageEnd();
-  ft->flush();
   uint8_t* buf;
   uint32_t sz;
   mem->getBuffer(&buf, &sz);
@@ -123,17 +118,33 @@ static std::vector<std::vector<uint8_t>> buildEncodedCalls() {
 // Returns elapsed time in nanoseconds.
 static long long runBenchmark(const std::shared_ptr<apache::thrift::TProcessor>& processor,
                                const std::vector<std::vector<uint8_t>>& encodedCalls) {
+  // Pre-create transport/protocol stacks once, outside the hot loop.
+  auto outMem = std::make_shared<TMemoryBuffer>();
+  auto outProto = std::make_shared<TBinaryProtocol>(outMem);
+
+  std::vector<std::shared_ptr<TMemoryBuffer>> inMems;
+  std::vector<std::shared_ptr<TBinaryProtocol>> inProtos;
+  inMems.reserve(NUM_METHODS);
+  inProtos.reserve(NUM_METHODS);
+  for (int i = 0; i < NUM_METHODS; ++i) {
+    auto mem = std::make_shared<TMemoryBuffer>(
+        const_cast<uint8_t*>(encodedCalls[i].data()),
+        static_cast<uint32_t>(encodedCalls[i].size()));
+    inMems.push_back(mem);
+    inProtos.push_back(std::make_shared<TBinaryProtocol>(mem));
+  }
+
   auto start = std::chrono::high_resolution_clock::now();
   for (int i = 0; i < NUM_LOOKUPS; ++i) {
-    const auto& data = encodedCalls[i % NUM_METHODS];
-    auto inMem = std::make_shared<TMemoryBuffer>(const_cast<uint8_t*>(data.data()),
-                                                  static_cast<uint32_t>(data.size()));
-    auto outMem = std::make_shared<TMemoryBuffer>();
-    auto inProto
-        = std::make_shared<TBinaryProtocol>(std::make_shared<TFramedTransport>(inMem));
-    auto outProto
-        = std::make_shared<TBinaryProtocol>(std::make_shared<TFramedTransport>(outMem));
-    processor->process(inProto, outProto, nullptr);
+    int idx = i % NUM_METHODS;
+    const auto& data = encodedCalls[idx];
+    // Reset input buffer to the beginning of the pre-encoded call (no allocation).
+    inMems[idx]->resetBuffer(const_cast<uint8_t*>(data.data()),
+                              static_cast<uint32_t>(data.size()),
+                              TMemoryBuffer::OBSERVE);
+    // Reset output buffer so it doesn't grow unboundedly.
+    outMem->resetBuffer();
+    processor->process(inProtos[idx], outProto, nullptr);
   }
   auto end = std::chrono::high_resolution_clock::now();
   return std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
