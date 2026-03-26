@@ -95,6 +95,35 @@ target_link_libraries(SpecificNameTest thrift)
 target_link_libraries(SpecificNameTest thriftnb)
 add_test(NAME SpecificNameTest COMMAND SpecificNameTest)
 
+# ProcessorMapBenchmark - benchmarks std::map vs std::unordered_map processor dispatch
+set(stresssvcgencpp_SOURCES
+    gen-cpp/StressService.cpp
+)
+add_library(stresssvcgencpp STATIC ${stresssvcgencpp_SOURCES})
+target_link_libraries(stresssvcgencpp thrift)
+
+set(stresssvcgencpp_unordered_SOURCES
+    gen-cpp-unordered/gen-cpp/StressService.cpp
+    src/ProcessorMapBenchmarkUnorderedFactory.cpp
+)
+add_library(stresssvcgencpp_unordered STATIC ${stresssvcgencpp_unordered_SOURCES})
+target_compile_definitions(stresssvcgencpp_unordered PRIVATE stresssvc=stresssvc_unordered)
+target_include_directories(stresssvcgencpp_unordered BEFORE PRIVATE
+    "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-unordered/gen-cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+    "${PROJECT_SOURCE_DIR}/lib/cpp/src"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src"
+)
+target_link_libraries(stresssvcgencpp_unordered thrift)
+
+add_executable(ProcessorMapBenchmark src/ProcessorMapBenchmark.cpp)
+target_include_directories(ProcessorMapBenchmark PRIVATE
+    "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src"
+)
+target_link_libraries(ProcessorMapBenchmark stresssvcgencpp stresssvcgencpp_unordered thrift)
+add_test(NAME ProcessorMapBenchmark COMMAND ProcessorMapBenchmark)
+
 # ForwardSetterTest - tests the forward_setter option
 set(forwardsettertestgencpp_SOURCES
     gen-cpp-forward/gen-cpp/ThriftTest_types.cpp
@@ -229,4 +258,16 @@ add_custom_command(OUTPUT gen-cpp/Service.cpp
 
 add_custom_command(OUTPUT gen-cpp/EchoService.cpp gen-cpp/SpecificNameTest_types.cpp
     COMMAND ${THRIFT_COMPILER} --gen cpp ${PROJECT_SOURCE_DIR}/test/SpecificNameTest.thrift
+)
+
+# Generate StressService (ordered, std::map ProcessMap)
+add_custom_command(OUTPUT gen-cpp/StressService.cpp gen-cpp/StressService.h
+    COMMAND ${THRIFT_COMPILER} --gen cpp ${PROJECT_SOURCE_DIR}/test/StressService.thrift
+)
+
+# Generate StressService with unordered_processor_map option
+add_custom_command(OUTPUT gen-cpp-unordered/gen-cpp/StressService.cpp gen-cpp-unordered/gen-cpp/StressService.h
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-unordered
+    COMMAND ${THRIFT_COMPILER} --gen cpp:unordered_processor_map -o gen-cpp-unordered ${PROJECT_SOURCE_DIR}/test/StressService.thrift
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )

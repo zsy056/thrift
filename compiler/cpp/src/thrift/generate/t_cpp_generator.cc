@@ -71,7 +71,7 @@ public:
     gen_no_skeleton_ = false;
     gen_no_constructors_ = false;
     gen_private_optional_ = false;
-    gen_unordered_map_ = false;
+    gen_unordered_processor_map_ = false;
     has_members_ = false;
 
     for( iter = parsed_options.begin(); iter != parsed_options.end(); ++iter) {
@@ -106,8 +106,8 @@ public:
         gen_no_constructors_ = true;
       } else if ( iter->first.compare("private_optional") == 0) {
         gen_private_optional_ = true;
-      } else if ( iter->first.compare("unordered_map") == 0) {
-        gen_unordered_map_ = true;
+      } else if ( iter->first.compare("unordered_processor_map") == 0) {
+        gen_unordered_processor_map_ = true;
       } else {
         throw "unknown option cpp:" + iter->first;
       }
@@ -428,7 +428,7 @@ private:
   /**
    * True if we should use std::unordered_map instead of std::map for the processor map.
    */
-  bool gen_unordered_map_;
+  bool gen_unordered_processor_map_;
 
   /**
    * True if thrift has member(s)
@@ -2280,7 +2280,7 @@ void t_cpp_generator::generate_service(t_service* tservice) {
   }
   f_header_ << "#include <thrift/async/TConcurrentClientSyncInfo.h>" << '\n';
   f_header_ << "#include <memory>" << '\n';
-  if (gen_unordered_map_) {
+  if (gen_unordered_processor_map_) {
     f_header_ << "#include <unordered_map>" << '\n';
   }
   f_header_ << "#include \"" << get_include_prefix(*get_program()) << program_name_ << "_types.h\""
@@ -3586,11 +3586,11 @@ void ProcessorGenerator::generate_class_definition() {
               << indent() << "    specialized(s) {}" << '\n' << indent()
               << "  ProcessFunctions() : generic(nullptr), specialized(nullptr) "
               << "{}" << '\n' << indent() << "};" << '\n' << indent()
-              << "typedef " << (generator_->gen_unordered_map_ ? "std::unordered_map" : "std::map")
+              << "typedef " << (generator_->gen_unordered_processor_map_ ? "std::unordered_map" : "std::map")
               << "<std::string, ProcessFunctions> "
               << "ProcessMap;" << '\n';
   } else {
-    f_header_ << indent() << "typedef " << (generator_->gen_unordered_map_ ? "std::unordered_map" : "std::map")
+    f_header_ << indent() << "typedef " << (generator_->gen_unordered_processor_map_ ? "std::unordered_map" : "std::map")
               << "<std::string, ProcessFunction> "
               << "ProcessMap;" << '\n';
   }
@@ -5196,4 +5196,7 @@ THRIFT_REGISTER_GENERATOR(
     "                     with perfect forwarding for non-primitive types.\n"
     "    no_ostream_operators:\n"
     "                     Omit generation of ostream definitions.\n"
-    "    no_skeleton:     Omits generation of skeleton.\n")
+    "    no_skeleton:     Omits generation of skeleton.\n"
+    "    unordered_processor_map:\n"
+    "                     Use std::unordered_map instead of std::map for the\n"
+    "                     processor dispatch map.\n")
