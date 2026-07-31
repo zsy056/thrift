@@ -25,6 +25,8 @@ BUILT_SOURCES = gen-cpp/ThriftTest.cpp \
                 gen-cpp/Service.cpp \
                 gen-cpp-forward/ThriftTest_types.cpp \
                 gen-cpp-forward/ThriftTest_constants.cpp \
+                gen-cpp-stdoptional/.stamp \
+                gen-cpp-stdoptional-legacy/.stamp \
                 gen-cpp-private/ThriftTest_types.cpp \
                 gen-cpp-private/ThriftTest_constants.cpp \
                 gen-cpp-enumclass/ThriftTest_types.cpp \
@@ -56,6 +58,7 @@ libtestgencpp_la_LIBADD = $(top_builddir)/lib/cpp/libthrift.la
 # Libraries for option-specific tests
 noinst_LTLIBRARIES += \
 	libforwardsettertestgencpp.la \
+	libstdoptionaltestgencpp.la \
 	libprivateoptonaltestgencpp.la \
 	libenumclasstestgencpp.la \
 	libtemplatestreamoptestgencpp.la \
@@ -70,6 +73,19 @@ nodist_libforwardsettertestgencpp_la_SOURCES = \
 	src/ThriftTest_extras.cpp
 
 libforwardsettertestgencpp_la_LIBADD = $(top_builddir)/lib/cpp/libthrift.la
+
+nodist_libstdoptionaltestgencpp_la_SOURCES = \
+	gen-cpp-stdoptional/StdOptionalTest_types.cpp \
+	gen-cpp-stdoptional/StdOptionalTest_types.h \
+	gen-cpp-stdoptional/StdOptionalTest_constants.cpp \
+	gen-cpp-stdoptional/StdOptionalTest_constants.h \
+	gen-cpp-stdoptional/OptionalService.cpp \
+	gen-cpp-stdoptional/OptionalService.h \
+	gen-cpp-stdoptional-legacy/StdOptionalLegacyTest_types.cpp \
+	gen-cpp-stdoptional-legacy/StdOptionalLegacyTest_types.h
+
+libstdoptionaltestgencpp_la_LIBADD = $(top_builddir)/lib/cpp/libthrift.la
+libstdoptionaltestgencpp_la_CXXFLAGS = $(AM_CXXFLAGS) -std=c++17 -Werror=reorder
 
 nodist_libprivateoptonaltestgencpp_la_SOURCES = \
 	gen-cpp-private/ThriftTest_types.cpp \
@@ -126,6 +142,7 @@ check_PROGRAMS = \
 	StressTest \
 	StressTestNonBlocking \
 	ForwardSetterTest \
+	StdOptionalTest \
 	PrivateOptionalTest \
 	EnumClassTest \
 	TemplateStreamOpTest \
@@ -178,6 +195,19 @@ ForwardSetterTest_LDADD = \
 	libforwardsettertestgencpp.la \
 	$(top_builddir)/lib/cpp/libthrift.la
 
+StdOptionalTest_SOURCES = \
+	src/StdOptionalTest.cpp
+
+StdOptionalTest_CPPFLAGS = -Igen-cpp-stdoptional -Igen-cpp-stdoptional-legacy $(AM_CPPFLAGS)
+StdOptionalTest_CXXFLAGS = $(AM_CXXFLAGS) -std=c++17
+StdOptionalTest_LDADD = \
+	libstdoptionaltestgencpp.la \
+	$(top_builddir)/lib/cpp/libthrift.la
+
+src/StdOptionalTest-StdOptionalTest.$(OBJEXT): \
+	gen-cpp-stdoptional/.stamp \
+	gen-cpp-stdoptional-legacy/.stamp
+
 PrivateOptionalTest_SOURCES = \
 	src/PrivateOptionalTest.cpp
 
@@ -221,6 +251,21 @@ gen-cpp-forward/ThriftTest_types.cpp gen-cpp-forward/ThriftTest_types.h gen-cpp-
 	$(MKDIR_P) gen-cpp-forward
 	$(THRIFT) --gen cpp:moveable_types=forward_setter -out gen-cpp-forward $<
 
+# Generate dedicated fixtures for std_optional behavior and legacy wire compatibility
+gen-cpp-stdoptional/StdOptionalTest_types.cpp gen-cpp-stdoptional/StdOptionalTest_types.h gen-cpp-stdoptional/StdOptionalTest_constants.cpp gen-cpp-stdoptional/StdOptionalTest_constants.h gen-cpp-stdoptional/OptionalService.cpp gen-cpp-stdoptional/OptionalService.h: gen-cpp-stdoptional/.stamp
+
+gen-cpp-stdoptional/.stamp: StdOptionalTest.thrift $(THRIFT)
+	$(MKDIR_P) gen-cpp-stdoptional
+	$(THRIFT) --gen cpp:std_optional -out gen-cpp-stdoptional $<
+	touch $@
+
+gen-cpp-stdoptional-legacy/StdOptionalLegacyTest_types.cpp gen-cpp-stdoptional-legacy/StdOptionalLegacyTest_types.h: gen-cpp-stdoptional-legacy/.stamp
+
+gen-cpp-stdoptional-legacy/.stamp: StdOptionalLegacyTest.thrift $(THRIFT)
+	$(MKDIR_P) gen-cpp-stdoptional-legacy
+	$(THRIFT) --gen cpp -out gen-cpp-stdoptional-legacy $<
+	touch $@
+
 # Generate ThriftTest with private_optional option
 gen-cpp-private/ThriftTest_types.cpp gen-cpp-private/ThriftTest_types.h gen-cpp-private/ThriftTest_constants.cpp: $(top_srcdir)/test/ThriftTest.thrift $(THRIFT)
 	$(MKDIR_P) gen-cpp-private
@@ -252,7 +297,7 @@ AM_CXXFLAGS = -Wall -Wextra -pedantic -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACR
 AM_LDFLAGS = $(BOOST_LDFLAGS) $(LIBEVENT_LDFLAGS) $(ZLIB_LIBS)
 
 clean-local:
-	$(RM) -r gen-cpp/ gen-cpp-forward/ gen-cpp-private/ gen-cpp-enumclass/ gen-cpp-templatestreamop/ gen-cpp-private-templatestreamop/
+	$(RM) -r gen-cpp/ gen-cpp-forward/ gen-cpp-stdoptional/ gen-cpp-stdoptional-legacy/ gen-cpp-private/ gen-cpp-enumclass/ gen-cpp-templatestreamop/ gen-cpp-private-templatestreamop/
 
 style-local:
 	$(CPPSTYLE_CMD)

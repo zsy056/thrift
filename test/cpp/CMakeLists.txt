@@ -126,6 +126,30 @@ target_link_libraries(ForwardSetterTest forwardsettertestgencpp ${Boost_LIBRARIE
 target_link_libraries(ForwardSetterTest thrift)
 add_test(NAME ForwardSetterTest COMMAND ForwardSetterTest)
 
+# StdOptionalTest - tests std::optional-backed explicitly optional fields
+set(stdoptionaltestgencpp_SOURCES
+    gen-cpp-stdoptional/gen-cpp/StdOptionalTest_types.cpp
+    gen-cpp-stdoptional/gen-cpp/StdOptionalTest_constants.cpp
+    gen-cpp-stdoptional/gen-cpp/OptionalService.cpp
+    gen-cpp-stdoptional-legacy/gen-cpp/StdOptionalLegacyTest_types.cpp
+)
+add_library(stdoptionaltestgencpp STATIC ${stdoptionaltestgencpp_SOURCES})
+add_dependencies(stdoptionaltestgencpp stdoptionaltest_codegen)
+enable_reorder_warnings_as_errors(stdoptionaltestgencpp)
+target_compile_features(stdoptionaltestgencpp PUBLIC cxx_std_17)
+target_include_directories(stdoptionaltestgencpp BEFORE PUBLIC
+    "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-stdoptional/gen-cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-stdoptional-legacy/gen-cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}"
+    "${PROJECT_SOURCE_DIR}/lib/cpp/src"
+)
+target_link_libraries(stdoptionaltestgencpp thrift)
+
+add_executable(StdOptionalTest src/StdOptionalTest.cpp)
+target_link_libraries(StdOptionalTest stdoptionaltestgencpp)
+target_link_libraries(StdOptionalTest thrift)
+add_test(NAME StdOptionalTest COMMAND StdOptionalTest)
+
 # PrivateOptionalTest - tests the private_optional option
 set(privateoptonaltestgencpp_SOURCES
     gen-cpp-private/gen-cpp/ThriftTest_types.cpp
@@ -233,6 +257,29 @@ add_custom_command(OUTPUT gen-cpp-forward/gen-cpp/ThriftTest_types.cpp gen-cpp-f
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-forward
     COMMAND ${THRIFT_COMPILER} --gen cpp:moveable_types=forward_setter -o gen-cpp-forward ${PROJECT_SOURCE_DIR}/test/ThriftTest.thrift
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+# Generate dedicated fixtures for std_optional behavior and legacy wire compatibility
+add_custom_command(OUTPUT gen-cpp-stdoptional/.stamp
+    BYPRODUCTS gen-cpp-stdoptional/gen-cpp/StdOptionalTest_types.cpp gen-cpp-stdoptional/gen-cpp/StdOptionalTest_types.h gen-cpp-stdoptional/gen-cpp/StdOptionalTest_constants.cpp gen-cpp-stdoptional/gen-cpp/StdOptionalTest_constants.h gen-cpp-stdoptional/gen-cpp/OptionalService.cpp gen-cpp-stdoptional/gen-cpp/OptionalService.h
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-stdoptional
+    COMMAND ${THRIFT_COMPILER} --gen cpp:std_optional -o gen-cpp-stdoptional ${CMAKE_CURRENT_SOURCE_DIR}/StdOptionalTest.thrift
+    COMMAND ${CMAKE_COMMAND} -E touch gen-cpp-stdoptional/.stamp
+    DEPENDS ${THRIFT_COMPILER} ${CMAKE_CURRENT_SOURCE_DIR}/StdOptionalTest.thrift
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+add_custom_command(OUTPUT gen-cpp-stdoptional-legacy/.stamp
+    BYPRODUCTS gen-cpp-stdoptional-legacy/gen-cpp/StdOptionalLegacyTest_types.cpp gen-cpp-stdoptional-legacy/gen-cpp/StdOptionalLegacyTest_types.h
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/gen-cpp-stdoptional-legacy
+    COMMAND ${THRIFT_COMPILER} --gen cpp -o gen-cpp-stdoptional-legacy ${CMAKE_CURRENT_SOURCE_DIR}/StdOptionalLegacyTest.thrift
+    COMMAND ${CMAKE_COMMAND} -E touch gen-cpp-stdoptional-legacy/.stamp
+    DEPENDS ${THRIFT_COMPILER} ${CMAKE_CURRENT_SOURCE_DIR}/StdOptionalLegacyTest.thrift
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+add_custom_target(stdoptionaltest_codegen
+    DEPENDS gen-cpp-stdoptional/.stamp gen-cpp-stdoptional-legacy/.stamp
 )
 
 # Generate ThriftTest with private_optional option for PrivateOptionalTest

@@ -71,6 +71,7 @@ public:
     gen_no_skeleton_ = false;
     gen_no_constructors_ = false;
     gen_private_optional_ = false;
+    gen_std_optional_ = false;
     has_members_ = false;
 
     for( iter = parsed_options.begin(); iter != parsed_options.end(); ++iter) {
@@ -105,6 +106,8 @@ public:
         gen_no_constructors_ = true;
       } else if ( iter->first.compare("private_optional") == 0) {
         gen_private_optional_ = true;
+      } else if (iter->first.compare("std_optional") == 0) {
+        gen_std_optional_ = true;
       } else {
         throw "unknown option cpp:" + iter->first;
       }
@@ -264,6 +267,10 @@ public:
                             bool pointer = false,
                             bool constant = false,
                             bool reference = false);
+  std::string field_storage_type(t_field* tfield);
+  std::string field_presence_expression(t_field* tfield,
+                                        const std::string& prefix,
+                                        bool pointer = false) const;
   std::string function_signature(t_function* tfunction,
                                  std::string style,
                                  std::string prefix = "",
@@ -288,6 +295,24 @@ public:
                                            bool external = false);
 
   bool is_reference(t_field* tfield) { return tfield->get_reference(); }
+
+  bool is_std_optional_field(const t_field* tfield) const {
+    return gen_std_optional_ && tfield->get_req() == t_field::T_OPTIONAL;
+  }
+
+  bool field_has_isset(const t_field* tfield) const {
+    return tfield->get_req() != t_field::T_REQUIRED && !is_std_optional_field(tfield);
+  }
+
+  bool struct_has_isset(const t_struct* tstruct) const {
+    const vector<t_field*>& members = tstruct->get_members();
+    for (const auto* member : members) {
+      if (field_has_isset(member)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   bool is_complex_type(t_type* ttype) {
     ttype = get_true_type(ttype);
@@ -423,6 +448,11 @@ private:
   bool gen_private_optional_;
 
   /**
+   * True if explicitly optional fields should use std::optional storage.
+   */
+  bool gen_std_optional_;
+
+  /**
    * True if thrift has member(s)
    */
   bool has_members_;
@@ -502,6 +532,9 @@ void t_cpp_generator::init_generator() {
   // Include C++xx compatibility header
   f_types_ << "#include <functional>" << '\n';
   f_types_ << "#include <memory>" << '\n';
+  if (gen_std_optional_) {
+    f_types_ << "#include <optional>" << '\n';
+  }
 
   // Include other Thrift includes
   const vector<t_program*>& includes = program_->get_includes();
@@ -926,22 +959,27 @@ void t_cpp_generator::print_const_value(ostream& out,
     vector<t_field*>::const_iterator f_iter;
     const map<t_const_value*, t_const_value*, t_const_value::value_compare>& val = value->get_map();
     map<t_const_value*, t_const_value*, t_const_value::value_compare>::const_iterator v_iter;
-    bool is_nonrequired_field = false;
     for (v_iter = val.begin(); v_iter != val.end(); ++v_iter) {
       t_type* field_type = nullptr;
-      is_nonrequired_field = false;
+      t_field* field = nullptr;
       for (f_iter = fields.begin(); f_iter != fields.end(); ++f_iter) {
         if ((*f_iter)->get_name() == v_iter->first->get_string()) {
+          field = *f_iter;
           field_type = (*f_iter)->get_type();
-          is_nonrequired_field = (*f_iter)->get_req() != t_field::T_REQUIRED;
         }
       }
       if (field_type == nullptr) {
         throw "type error: " + type->get_name() + " has no field " + v_iter->first->get_string();
       }
       string item_val = render_const_value(&out, name, field_type, v_iter->second);
-      indent(out) << name << "." << v_iter->first->get_string() << " = " << item_val << ";" << '\n';
-      if (is_nonrequired_field) {
+      if (gen_private_optional_ && field->get_req() == t_field::T_OPTIONAL) {
+        indent(out) << name << ".__set_" << v_iter->first->get_string() << "(" << item_val << ");"
+                    << '\n';
+      } else {
+        indent(out) << name << "." << v_iter->first->get_string() << " = " << item_val << ";"
+                    << '\n';
+      }
+      if (!gen_private_optional_ && field_has_isset(field)) {
         indent(out) << name << ".__isset." << v_iter->first->get_string() << " = true;" << '\n';
       }
     }
@@ -1095,7 +1133,7 @@ void t_cpp_generator::generate_equality_operator(std::ostream& out, t_struct* ts
   for (m_iter = members.begin(); m_iter != members.end(); ++m_iter) {
     // Most existing Thrift code does not use isset or optional/required,
     // so we treat "default" fields as required.
-    if ((*m_iter)->get_req() != t_field::T_OPTIONAL) {
+    if ((*m_iter)->get_req() != t_field::T_OPTIONAL || is_std_optional_field(*m_iter)) {
       out << indent() << "if (!(" << (*m_iter)->get_name() << " == rhs."
           << (*m_iter)->get_name() << "))" << '\n' << indent() << "  return false;" << '\n';
     } else {
@@ -1161,9 +1199,10 @@ void t_cpp_generator::generate_default_constructor(ostream& out,
   // the initializer block
   for (m_iter = members.begin(); m_iter != members.end(); ++m_iter) {
     t_type* t = get_true_type((*m_iter)->get_type());
-    if (t->is_base_type() || t->is_enum() || is_reference(*m_iter)) {
+    t_const_value* cv = (*m_iter)->get_value();
+    if ((t->is_base_type() || t->is_enum() || is_reference(*m_iter))
+        && (!is_std_optional_field(*m_iter) || cv != nullptr)) {
       string dval;
-      t_const_value* cv = (*m_iter)->get_value();
       if (cv != nullptr) {
         dval += render_const_value(&out, (*m_iter)->get_name(), t, cv);
       } else if (t->is_enum()) {
@@ -1200,7 +1239,12 @@ void t_cpp_generator::generate_default_constructor(ostream& out,
     if (!t->is_base_type() && !t->is_enum() && !is_reference(*m_iter)) {
       t_const_value* cv = (*m_iter)->get_value();
       if (cv != nullptr) {
-        print_const_value(out, (*m_iter)->get_name(), t, cv);
+        if (is_std_optional_field(*m_iter)) {
+          indent(out) << (*m_iter)->get_name() << ".emplace();" << '\n';
+          print_const_value(out, "(*" + (*m_iter)->get_name() + ")", t, cv);
+        } else {
+          print_const_value(out, (*m_iter)->get_name(), t, cv);
+        }
       }
     }
   }
@@ -1258,10 +1302,10 @@ void t_cpp_generator::generate_constructor_helper(ostream& out,
     indent(out) << "(void) " << tmp_name << ";" << '\n';
 
   vector<t_field*>::const_iterator f_iter;
-  bool has_nonrequired_fields = false;
+  bool has_isset_fields = false;
   for (f_iter = members.begin(); f_iter != members.end(); ++f_iter) {
-    if ((*f_iter)->get_req() != t_field::T_REQUIRED)
-      has_nonrequired_fields = true;
+    if (field_has_isset(*f_iter))
+      has_isset_fields = true;
     indent(out) << (*f_iter)->get_name() << " = "
                 << maybeMove(
                     tmp_name + "." + (*f_iter)->get_name(),
@@ -1269,7 +1313,7 @@ void t_cpp_generator::generate_constructor_helper(ostream& out,
                 << ";" << '\n';
   }
 
-  if (has_nonrequired_fields) {
+  if (has_isset_fields) {
     indent(out) << "__isset = " << maybeMove(tmp_name + ".__isset", false) << ";" << '\n';
   }
 
@@ -1308,17 +1352,17 @@ void t_cpp_generator::generate_assignment_helper(ostream& out, t_struct* tstruct
     indent(out) << "(void) " << tmp_name << ";" << '\n';
 
   vector<t_field*>::const_iterator f_iter;
-  bool has_nonrequired_fields = false;
+  bool has_isset_fields = false;
   for (f_iter = members.begin(); f_iter != members.end(); ++f_iter) {
-    if ((*f_iter)->get_req() != t_field::T_REQUIRED)
-      has_nonrequired_fields = true;
+    if (field_has_isset(*f_iter))
+      has_isset_fields = true;
     indent(out) << (*f_iter)->get_name() << " = "
                 << maybeMove(
                     tmp_name + "." + (*f_iter)->get_name(),
                     is_move && is_complex_type((*f_iter)->get_type()))
                 << ";" << '\n';
   }
-  if (has_nonrequired_fields) {
+  if (has_isset_fields) {
     indent(out) << "__isset = " << maybeMove(tmp_name + ".__isset", false) << ";" << '\n';
   }
 
@@ -1358,14 +1402,11 @@ void t_cpp_generator::generate_struct_declaration(ostream& out,
   // the generated code amenable to processing by SWIG.
   // We only declare the struct if it gets used in the class.
 
-  // Isset struct has boolean fields, but only for non-required fields.
-  bool has_nonrequired_fields = false;
-  for (m_iter = members.begin(); m_iter != members.end(); ++m_iter) {
-    if ((*m_iter)->get_req() != t_field::T_REQUIRED)
-      has_nonrequired_fields = true;
-  }
+  // Isset struct has boolean fields for values whose presence is not stored
+  // by std::optional.
+  bool has_isset_fields = struct_has_isset(tstruct);
 
-  if (has_nonrequired_fields && (!pointers || read)) {
+  if (has_isset_fields && (!pointers || read)) {
 
     out << indent() << "typedef struct _" << tstruct->get_name() << "__isset {" << '\n';
     indent_up();
@@ -1373,7 +1414,7 @@ void t_cpp_generator::generate_struct_declaration(ostream& out,
     indent(out) << "_" << tstruct->get_name() << "__isset() ";
     bool first = true;
     for (m_iter = members.begin(); m_iter != members.end(); ++m_iter) {
-      if ((*m_iter)->get_req() == t_field::T_REQUIRED) {
+      if (!field_has_isset(*m_iter)) {
         continue;
       }
       string isSet = ((*m_iter)->get_value() != nullptr) ? "true" : "false";
@@ -1387,7 +1428,7 @@ void t_cpp_generator::generate_struct_declaration(ostream& out,
     out << " {}" << '\n';
 
     for (m_iter = members.begin(); m_iter != members.end(); ++m_iter) {
-      if ((*m_iter)->get_req() != t_field::T_REQUIRED) {
+      if (field_has_isset(*m_iter)) {
         indent(out) << "bool " << (*m_iter)->get_name() << " :1;" << '\n';
       }
     }
@@ -1477,7 +1518,7 @@ void t_cpp_generator::generate_struct_declaration(ostream& out,
   }
 
   // Add the __isset data member if we need it, using the definition from above
-  if (has_nonrequired_fields && (!pointers || read)) {
+  if (has_isset_fields && (!pointers || read)) {
     out << '\n' << indent() << "_" << tstruct->get_name() << "__isset __isset;" << '\n';
   }
 
@@ -1506,10 +1547,7 @@ void t_cpp_generator::generate_struct_declaration(ostream& out,
   // Generate getter methods when private_optional is enabled
   if (gen_private_optional_ && !pointers) {
     for (m_iter = members.begin(); m_iter != members.end(); ++m_iter) {
-      std::string field_type = type_name((*m_iter)->get_type());
-      if (is_reference((*m_iter))) {
-        field_type = "::std::shared_ptr<" + field_type + ">";
-      }
+      std::string field_type = field_storage_type(*m_iter);
       // Const getter only
       out << '\n' << indent() << "const " << field_type << "& __get_" << (*m_iter)->get_name() 
           << "() const { return " << (*m_iter)->get_name() << "; }" << '\n';
@@ -1665,7 +1703,7 @@ void t_cpp_generator::generate_struct_definition(ostream& out,
       // assume all fields are required except optional fields.
       // for optional fields change __isset.name to true
       bool is_optional = (*m_iter)->get_req() == t_field::T_OPTIONAL;
-      if (is_optional) {
+      if (is_optional && !is_std_optional_field(*m_iter)) {
         out << indent() << indent() << "__isset." << (*m_iter)->get_name() << " = true;" << '\n';
       }
       out << indent() << "}" << '\n';
@@ -1709,7 +1747,7 @@ void t_cpp_generator::generate_struct_forward_setter_impls(ostream& out, t_struc
     // assume all fields are required except optional fields.
     // for optional fields change __isset.name to true
     bool is_optional = (*m_iter)->get_req() == t_field::T_OPTIONAL;
-    if (is_optional) {
+    if (is_optional && !is_std_optional_field(*m_iter)) {
       out << indent() << "__isset." << (*m_iter)->get_name() << " = true;" << '\n';
     }
     indent_down();
@@ -1782,9 +1820,6 @@ void t_cpp_generator::generate_struct_reader(ostream& out, t_struct* tstruct, bo
       indent(out) << "if (ftype == " << type_to_enum((*f_iter)->get_type()) << ") {" << '\n';
       indent_up();
 
-      const char* isset_prefix = ((*f_iter)->get_req() != t_field::T_REQUIRED) ? "this->__isset."
-                                                                               : "isset_";
-
 #if 0
           // This code throws an exception if the same field is encountered twice.
           // We've decided to leave it out for performance reasons.
@@ -1795,12 +1830,24 @@ void t_cpp_generator::generate_struct_reader(ostream& out, t_struct* tstruct, bo
             indent() << "  throw TProtocolException(TProtocolException::INVALID_DATA);" << '\n';
 #endif
 
-      if (pointers && !(*f_iter)->get_type()->is_xception()) {
+      if (is_std_optional_field(*f_iter)) {
+        out << indent() << "this->" << (*f_iter)->get_name() << (pointers ? "->" : ".")
+            << "emplace();" << '\n';
+        if (pointers && !(*f_iter)->get_type()->is_xception()) {
+          generate_deserialize_field(out, *f_iter, "(*(*(this->", ")))");
+        } else {
+          generate_deserialize_field(out, *f_iter, "(*(this->", "))");
+        }
+      } else if (pointers && !(*f_iter)->get_type()->is_xception()) {
         generate_deserialize_field(out, *f_iter, "(*(this->", "))");
       } else {
         generate_deserialize_field(out, *f_iter, "this->");
       }
-      out << indent() << isset_prefix << (*f_iter)->get_name() << " = true;" << '\n';
+      if ((*f_iter)->get_req() == t_field::T_REQUIRED) {
+        out << indent() << "isset_" << (*f_iter)->get_name() << " = true;" << '\n';
+      } else if (field_has_isset(*f_iter)) {
+        out << indent() << "this->__isset." << (*f_iter)->get_name() << " = true;" << '\n';
+      }
       indent_down();
       out << indent() << "} else {" << '\n' << indent() << "  xfer += iprot->skip(ftype);" << '\n'
           <<
@@ -1869,7 +1916,9 @@ void t_cpp_generator::generate_struct_writer(ostream& out, t_struct* tstruct, bo
     bool check_if_set = (*f_iter)->get_req() == t_field::T_OPTIONAL
                         || (*f_iter)->get_type()->is_xception();
     if (check_if_set) {
-      out << '\n' << indent() << "if (this->__isset." << (*f_iter)->get_name() << ") {" << '\n';
+      out << '\n'
+          << indent() << "if (" << field_presence_expression(*f_iter, "this->", pointers) << ") {"
+          << '\n';
       indent_up();
     } else {
       out << '\n';
@@ -1880,7 +1929,13 @@ void t_cpp_generator::generate_struct_writer(ostream& out, t_struct* tstruct, bo
         << "\"" << (*f_iter)->get_name() << "\", " << type_to_enum((*f_iter)->get_type()) << ", "
         << (*f_iter)->get_key() << ");" << '\n';
     // Write field contents
-    if (pointers && !(*f_iter)->get_type()->is_xception()) {
+    if (is_std_optional_field(*f_iter)) {
+      if (pointers && !(*f_iter)->get_type()->is_xception()) {
+        generate_serialize_field(out, *f_iter, "(*(*(this->", ")))");
+      } else {
+        generate_serialize_field(out, *f_iter, "(*(this->", "))");
+      }
+    } else if (pointers && !(*f_iter)->get_type()->is_xception()) {
       generate_serialize_field(out, *f_iter, "(*(this->", "))");
     } else {
       generate_serialize_field(out, *f_iter, "this->");
@@ -1941,7 +1996,7 @@ void t_cpp_generator::generate_struct_result_writer(ostream& out,
       out << " else if ";
     }
 
-    out << "(this->__isset." << (*f_iter)->get_name() << ") {" << '\n';
+    out << "(" << field_presence_expression(*f_iter, "this->", pointers) << ") {" << '\n';
 
     indent_up();
 
@@ -1950,7 +2005,13 @@ void t_cpp_generator::generate_struct_result_writer(ostream& out,
         << "\"" << (*f_iter)->get_name() << "\", " << type_to_enum((*f_iter)->get_type()) << ", "
         << (*f_iter)->get_key() << ");" << '\n';
     // Write field contents
-    if (pointers) {
+    if (is_std_optional_field(*f_iter)) {
+      if (pointers) {
+        generate_serialize_field(out, *f_iter, "(*(*(this->", ")))");
+      } else {
+        generate_serialize_field(out, *f_iter, "(*(this->", "))");
+      }
+    } else if (pointers) {
       generate_serialize_field(out, *f_iter, "(*(this->", "))");
     } else {
       generate_serialize_field(out, *f_iter, "this->");
@@ -1992,11 +2053,11 @@ void t_cpp_generator::generate_struct_swap(ostream& out, t_struct* tstruct) {
   // namespaces, fall back to ::std::swap().
   out << indent() << "using ::std::swap;" << '\n';
 
-  bool has_nonrequired_fields = false;
+  bool has_isset_fields = false;
   const vector<t_field*>& fields = tstruct->get_members();
   for (auto tfield : fields) {
-    if (tfield->get_req() != t_field::T_REQUIRED) {
-      has_nonrequired_fields = true;
+    if (field_has_isset(tfield)) {
+      has_isset_fields = true;
     }
 
     if (tstruct->get_name() == "a" || tstruct->get_name() == "b") {
@@ -2008,7 +2069,7 @@ void t_cpp_generator::generate_struct_swap(ostream& out, t_struct* tstruct) {
     }
   }
 
-  if (has_nonrequired_fields) {
+  if (has_isset_fields) {
     if (tstruct->get_name() == "a" || tstruct->get_name() == "b") {
       out << indent() << "swap(a1.__isset, a2.__isset);" << '\n';
     } else {
@@ -2125,24 +2186,37 @@ void generate_required_field_value(std::ostream& out, const t_field* field, bool
   out << " << to_string(" << field->get_name() << ")";
 }
 
-void generate_optional_field_value(std::ostream& out, const t_field* field, bool use_printto) {
-  out << "; (__isset." << field->get_name() << " ? ";
+void generate_optional_field_value(std::ostream& out,
+                                   const t_field* field,
+                                   bool use_printto,
+                                   bool std_optional) {
+  out << "; (";
+  if (std_optional) {
+    out << field->get_name() << ".has_value()";
+  } else {
+    out << "__isset." << field->get_name();
+  }
+  out << " ? ";
+  const string value = (std_optional ? "*" : "") + field->get_name();
   if (use_printto) {
     // printTo() returns void. Both ternary branches must have the same type, so
     // cast the false-branch to void as well. The non-printTo path below does not
     // need the cast because both of its branches return the same stream reference.
-    out << "printTo(out, " << field->get_name() << ")";
+    out << "printTo(out, " << value << ")";
     out << " : (void)(out << \"<null>\"))";
   } else {
     // Both branches return std::ostream&, so no cast is needed.
-    out << "(out << to_string(" << field->get_name() << "))";
+    out << "(out << to_string(" << value << "))";
     out << " : (out << \"<null>\"))";
   }
 }
 
-void generate_field_value(std::ostream& out, const t_field* field, bool use_printto) {
+void generate_field_value(std::ostream& out,
+                          const t_field* field,
+                          bool use_printto,
+                          bool std_optional) {
   if (field->get_req() == t_field::T_OPTIONAL)
-    generate_optional_field_value(out, field, use_printto);
+    generate_optional_field_value(out, field, use_printto, std_optional);
   else
     generate_required_field_value(out, field, use_printto);
 }
@@ -2151,15 +2225,16 @@ void generate_field_name(std::ostream& out, const t_field* field) {
   out << "\"" << field->get_name() << "=\"";
 }
 
-void generate_field(std::ostream& out, const t_field* field, bool use_printto) {
+void generate_field(std::ostream& out, const t_field* field, bool use_printto, bool std_optional) {
   generate_field_name(out, field);
-  generate_field_value(out, field, use_printto);
+  generate_field_value(out, field, use_printto, std_optional);
 }
 
 void generate_fields(std::ostream& out,
                      const vector<t_field*>& fields,
                      const std::string& indent,
-                     bool use_printto) {
+                     bool use_printto,
+                     bool std_optional) {
   const vector<t_field*>::const_iterator beg = fields.begin();
   const vector<t_field*>::const_iterator end = fields.end();
 
@@ -2170,7 +2245,7 @@ void generate_fields(std::ostream& out,
       out << "\", \" << ";
     }
 
-    generate_field(out, *it, use_printto);
+    generate_field(out, *it, use_printto, std_optional);
     out << ";" << '\n';
   }
 }
@@ -2195,7 +2270,8 @@ void t_cpp_generator::generate_struct_print_method(std::ostream& out, t_struct* 
   out << indent() << "using ::apache::thrift::to_string;" << '\n';
   
   out << indent() << "out << \"" << tstruct->get_name() << "(\";" << '\n';
-  struct_ostream_operator_generator::generate_fields(out, tstruct->get_members(), indent(), use_printto);
+  struct_ostream_operator_generator::generate_fields(out, tstruct->get_members(), indent(),
+                                                     use_printto, gen_std_optional_);
   out << indent() << "out << \")\";" << '\n';
 
   indent_down();
@@ -4426,9 +4502,19 @@ void t_cpp_generator::generate_deserialize_struct(ostream& out,
     const vector<t_field*>& members = tstruct->get_members();
     vector<t_field*>::const_iterator f_iter;
     for (f_iter = members.begin(); f_iter != members.end(); ++f_iter) {
-
-      indent(out) << "if (" << prefix << "->__isset." << (*f_iter)->get_name()
-                  << ") { wasSet = true; }" << '\n';
+      if (!gen_std_optional_) {
+        indent(out) << "if (" << prefix << "->__isset." << (*f_iter)->get_name()
+                    << ") { wasSet = true; }" << '\n';
+      } else if ((*f_iter)->get_req() == t_field::T_REQUIRED) {
+        indent(out) << "wasSet = true;" << '\n';
+      } else if (is_std_optional_field(*f_iter)) {
+        indent(out) << "if (" << prefix << "->" << (gen_private_optional_ ? "__get_" : "")
+                    << (*f_iter)->get_name() << (gen_private_optional_ ? "()" : "")
+                    << ".has_value()) { wasSet = true; }" << '\n';
+      } else {
+        indent(out) << "if (" << prefix << "->__isset." << (*f_iter)->get_name()
+                    << ") { wasSet = true; }" << '\n';
+      }
     }
     indent(out) << "if (!wasSet) { " << prefix << ".reset(); }" << '\n';
   } else {
@@ -4903,6 +4989,26 @@ string t_cpp_generator::base_type_name(t_base_type::t_base tbase) {
  * @param ttype The type
  * @return Field declaration, i.e. int x = 0;
  */
+string t_cpp_generator::field_storage_type(t_field* tfield) {
+  string result = type_name(tfield->get_type());
+  if (is_reference(tfield)) {
+    result = "::std::shared_ptr<" + result + ">";
+  }
+  if (is_std_optional_field(tfield)) {
+    result = "std::optional<" + result + ">";
+  }
+  return result;
+}
+
+string t_cpp_generator::field_presence_expression(t_field* tfield,
+                                                  const string& prefix,
+                                                  bool pointer) const {
+  if (is_std_optional_field(tfield)) {
+    return prefix + tfield->get_name() + (pointer ? "->" : ".") + "has_value()";
+  }
+  return prefix + "__isset." + tfield->get_name();
+}
+
 string t_cpp_generator::declare_field(t_field* tfield,
                                       bool init,
                                       bool pointer,
@@ -4913,10 +5019,7 @@ string t_cpp_generator::declare_field(t_field* tfield,
   if (constant) {
     result += "const ";
   }
-  result += type_name(tfield->get_type());
-  if (is_reference(tfield)) {
-    result = "::std::shared_ptr<" + result + ">";
-  }
+  result += field_storage_type(tfield);
   if (pointer) {
     result += "*";
   }
@@ -4924,7 +5027,7 @@ string t_cpp_generator::declare_field(t_field* tfield,
     result += "&";
   }
   result += " " + tfield->get_name();
-  if (init) {
+  if (init && (!is_std_optional_field(tfield) || tfield->get_value() != nullptr)) {
     t_type* type = get_true_type(tfield->get_type());
     if (t_const_value* cv = tfield->get_value()) {
       result += " = " + render_const_value(nullptr, tfield->get_name(), type, cv);
@@ -5162,7 +5265,6 @@ std::string t_cpp_generator::display_name() const {
   return "C++";
 }
 
-
 THRIFT_REGISTER_GENERATOR(
     cpp,
     "C++",
@@ -5180,4 +5282,6 @@ THRIFT_REGISTER_GENERATOR(
     "                     with perfect forwarding for non-primitive types.\n"
     "    no_ostream_operators:\n"
     "                     Omit generation of ostream definitions.\n"
+    "    std_optional:    Generate explicitly optional fields as std::optional.\n"
+    "                     Generated code requires C++17 or later.\n"
     "    no_skeleton:     Omits generation of skeleton.\n")
